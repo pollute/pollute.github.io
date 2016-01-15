@@ -1,4 +1,4 @@
 #Hello Everyone
-cars2=cars*2
+cars2=cars*3
 plot(cars2)
 
