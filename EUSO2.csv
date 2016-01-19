@@ -1,4 +1,4 @@
-country iso code,city_name,station_european_code,type_of_station,station_type_of_area,component_caption,statistics_year,statistic_value (µg/m3),above_DLV?
+country iso code,city_name,station_european_code,type_of_station,station_type_of_area,component_caption,statistics_year,ug/m3,above_DLV?
 AT,Klagenfurt,AT2KA71,Background,urban,SO2,2013,5.8,0
 AT,Linz,AT4S415,Traffic,urban,SO2,2013,12.2,0
 AT,Linz,AT4S416,Background,urban,SO2,2013,23.3,0
