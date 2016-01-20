@@ -27,3 +27,17 @@ TriComp$country.iso.code <- droplevels(TriComp$country.iso.code)
 #Plots Data
 boxplot(ug.m3 ~ country.iso.code , data=TriComp, xlab = "Countries", ylab = "Atmosphertic SO2 (ug/m3)", main="SO2 Concentrations in Selected EU Countries")
 
+
+# Enter Daily Limit Value (DLV) threshold, in ug/m3.
+dlv=15
+
+# Determine which sites exceed threshold. If ug.m3 > dlv, "above_DLV." column is 1 (true).
+for (i in 1:498){
+  if(EUS02$ug.m3[i] > dlv){
+    EUS02$above_DLV.[i] = "1"
+  }
+  if(EUS02$ug.m3[i] <= dlv){
+    EUS02$above_DLV.[i] = "0"
+  }
+}
+
