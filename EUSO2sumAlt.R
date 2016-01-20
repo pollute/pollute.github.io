@@ -30,11 +30,11 @@ dlv=15
 
 # Determine which sites exceed threshold. If ug.m3 > dlv, "above_DLV." column is 1 (true).
 for (i in 1:498){
-  if(EUS02$ug.m3[i] > dlv){
-    EUS02$above_DLV.[i] = "1"
+  if(EUSO2$ug.m3[i] > dlv){
+    EUSO2$above_DLV.[i] = "1"
   }
-  if(EUS02$ug.m3[i] <= dlv){
-    EUS02$above_DLV.[i] = "0"
+  if(EUSO2$ug.m3[i] <= dlv){
+    EUSO2$above_DLV.[i] = "0"
   }
 }
 
