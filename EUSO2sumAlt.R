@@ -9,16 +9,13 @@
 ####
 
 
-#
-
-
 # Upload file EUSO2
 EUSO2 <- read.csv(file="EUSO2.csv")
 
 # Summarize countries by their mean SO2 concentration across all monitoring stations
 EUSO2CountryM = aggregate(ug.m3 ~ country.iso.code, data = EUSO2, FUN = mean)
 
-# Boxplot summary of SO2 measurements taken in France, Germany and Czech Republic
+# Boxplot summary of SO2 measurements taken in Austria, Hungary and Spain
 
 #Creates Subset of Data
 TriComp = subset(EUSO2, country.iso.code == "AT" | country.iso.code == "HU" | country.iso.code == "ES")
