@@ -1,11 +1,12 @@
 ---
-title: "Pollute"
+title: "Pollution Data Group (@Pollute)"
 author: "Elise, Mitchell, Steph and Dannique"
 date: "January 22, 2016"
 output: html_document
 ---
 
 ###@Pollute Data Management Document
+
 #### Types of Data
 Data will be spreadsheets on contaminant concentrations and companion descriptior variables (location, location descriptors, timestamps, etc.).
 Data will be saved in .csv files.
