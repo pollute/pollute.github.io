@@ -1,5 +1,5 @@
 ---
-title: "index"
+title: "DMT"
 author: "Elise"
 date: "January 22, 2016"
 output: html_document
