@@ -1,0 +1,16 @@
+---
+title: "index"
+author: "Elise"
+date: "January 22, 2016"
+output: html_document
+---
+
+# Types of Data
+
+# Data and Metadata Standards
+
+# Policies for Accss and Sharing
+
+# Policies and Provisions for Re-Use, Re-Distribution
+
+# Plans for Archiving and Preservation of Access
