@@ -3,6 +3,7 @@ title: "Pollution Data Group (@Pollute)"
 author: "Elise, Mitchell, Steph and Dannique"
 date: "January 22, 2016"
 output: html_document
+theme: "cerulean"
 ---
 
 ###@Pollute Data Management Document
