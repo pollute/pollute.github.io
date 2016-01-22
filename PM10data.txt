@@ -1,0 +1,182 @@
+iso3	country	population*	PM10
+AFG	Afghanistan	3431458	47
+ALB	Albania	263274	32
+DZA	Algeria	7114636	76
+AND	Andorra	26013	33
+AGO	Angola	2591704	125
+ATG	Antigua and Barbuda	24116	16
+ARG	Argentina	27087840	71
+ARM	Armenia	1677855	85
+AUS	Australia	13514738	18
+AUT	Austria	3008152	33
+AZE	Azerbaijan	1873157	99
+BHS	"Bahamas, The"	214141	43
+BHR	Bahrain	170511	70
+BGD	Bangladesh	10585200	147
+BRB	Barbados	9927	41
+BLR	Belarus	4717777	8
+BEL	Belgium	3502427	28
+BLZ	Belize	59893	23
+BEN	Benin	1325821	47
+BTN	Bhutan	44046	41
+BOL	Bolivia	3591859	106
+BIH	Bosnia and Herzegovina	1354730	30
+BRA	Brazil	76136838	33
+BRN	Brunei	95666	38
+BGR	Bulgaria	2914315	75
+BFA	Burkina Faso	1441978	108
+BDI	Burundi	391723	36
+KHM	Cambodia	919174	69
+CMR	Cameroon	3716240	85
+CAN	Canada	24088276	22
+CYM	Cayman Islands	20955	33
+CAF	Central African Republic	747415	49
+TCD	Chad	1430623	161
+CHL	Chile	8556344	65
+CHN	China	421633654	87
+COL	Colombia	17070667	24
+COM	Comoros	42931	51
+ZAR	"Congo, Dem. Rep."	10255126	51
+COG	"Congo, Rep."	1797197	90
+CRI	Costa Rica	1746470	38
+CIV	Cote d'Ivoire	4138265	64
+HRV	Croatia	1429089	37
+CUB	Cuba	4382854	25
+CYP	Cyprus	374103	55
+CZE	Czech Republic	2498300	27
+DNK	Denmark	1997893	23
+DMA	Dominica	16751	28
+DOM	Dominican Republic	3344189	39
+ECU	Ecuador	5686778	28
+EGY	"Egypt, Arab Rep."	21101690	152
+SLV	El Salvador	1685386	43
+ERI	Eritrea	535185	80
+EST	Estonia	504982	20
+ETH	Ethiopia	4581946	88
+FRO	Faeroe Islands	16737	20
+FJI	Fiji	196000	34
+FIN	Finland	2149744	21
+FRA	France	24661755	15
+GAB	Gabon	544078	21
+GMB	"Gambia, The"	229000	93
+GEO	Georgia	1901202	98
+DEU	Germany	26555040	22
+GHA	Ghana	3571665	33
+GRC	Greece	5031318	47
+GRD	Grenada	35000	25
+GTM	Guatemala	2474035	59
+GIN	Guinea	1764000	69
+GNB	Guinea-Bissau	274000	86
+GUY	Guyana	275000	34
+HTI	Haiti	2249217	50
+HND	Honduras	1911271	49
+HKG	"Hong Kong, China"	6743204	38
+HUN	Hungary	3156840	25
+ISL	Iceland	164253	21
+IND	India	183885990	89
+IDN	Indonesia	40406551	102
+IRN	"Iran, Islamic Rep."	26786855	71
+IRQ	Iraq	14833284	178
+IRL	Ireland	1179748	23
+ISR	Israel	4841046	52
+ITA	Italy	15272937	33
+JAM	Jamaica	674778	54
+JPN	Japan	80122974	33
+JOR	Jordan	2381435	77
+KAZ	Kazakhstan	6349011	27
+KEN	Kenya	4600094	44
+PRK	"Korea, Dem. Rep."	6621062	93
+KOR	"Korea, Rep."	33956145	43
+KWT	Kuwait	1638081	134
+KGZ	Kyrgyz Republic	790099	41
+LAO	Lao PDR	1024613	47
+LVA	Latvia	995062	22
+LBN	Lebanon	2488900	45
+LSO	Lesotho	373000	54
+LBR	Liberia	479000	41
+LIE	Liechtenstein	6972	42
+LTU	Lithuania	1475546	29
+LUX	Luxembourg	83286	18
+MAC	"Macao, China"	462000	102
+MKD	"Macedonia, FYR"	540480	33
+MDG	Madagascar	2297969	47
+MWI	Malawi	995117	46
+MYS	Malaysia	5872531	24
+MDV	Maldives	71593	49
+MLI	Mali	1215170	194
+MRT	Mauritania	881000	113
+MEX	Mexico	55341364	53
+MDA	Moldova	1136672	35
+MNG	Mongolia	716208	71
+MAR	Morocco	10210431	29
+MOZ	Mozambique	4045035	46
+MMR	Myanmar	6051290	89
+NAM	Namibia	201706	53
+NPL	Nepal	839068	50
+NLD	Netherlands	7985829	37
+ANT	Netherlands Antilles	2641	32
+NCL	New Caledonia	153390	74
+NZL	New Zealand	2667984	16
+NIC	Nicaragua	1240603	42
+NER	Niger	1150996	164
+NGA	Nigeria	29416937	104
+NOR	Norway	1480521	21
+OMN	Oman	887000	105
+PAK	Pakistan	37274140	180
+PAN	Panama	807742	53
+PNG	Papua New Guinea	293000	31
+PRY	Paraguay	1277983	97
+PER	Peru	13432077	62
+PHL	Philippines	28976543	49
+POL	Poland	12123629	44
+PRT	Portugal	5358314	34
+PRI	Puerto Rico	2713196	25
+QAT	Qatar	391000	67
+ROM	Romania	7319254	23
+RUS	Russian Federation	70490869	26
+RWA	Rwanda	369000	35
+STP	Sao Tome and Principe	34762	52
+SAU	Saudi Arabia	8536823	106
+SEN	Senegal	2898518	92
+SLE	Sierra Leone	822000	63
+SGP	Singapore	3162838	41
+SVK	Slovak Republic	924996	22
+SVN	Slovenia	413966	36
+SLB	Solomon Islands	69691	31
+SOM	Somalia	1329198	39
+ZAF	South Africa	18744777	24
+ESP	Spain	16824222	40
+LKA	Sri Lanka	1719302	94
+KNA	St. Kitts and Nevis	11809	23
+LCA	St. Lucia	58905	38
+VCT	St. Vincent and the Grenadines	20852	33
+SDN	Sudan	5094060	246
+SUR	Suriname	233000	51
+SWZ	Swaziland	73000	40
+SWE	Sweden	2644649	13
+CHE	Switzerland	2950271	26
+SYR	Syrian Arab Republic	6237125	102
+TJK	Tajikistan	710505	64
+TZA	Tanzania	6581703	37
+THA	Thailand	9558784	76
+TGO	Togo	790000	46
+TTO	Trinidad and Tobago	47013	24
+TUN	Tunisia	2783341	47
+TUR	Turkey	39723188	54
+TKM	Turkmenistan	812340	68
+UGA	Uganda	1171076	16
+UKR	Ukraine	20215043	35
+ARE	United Arab Emirates	2292838	78
+GBR	United Kingdom	30905786	19
+USA	United States	201423008	25
+URY	Uruguay	1473550	173
+UZB	Uzbekistan	5158918	83
+VUT	Vanuatu	25097	28
+VEN	"Venezuela, RB"	14660550	13
+VNM	Vietnam	14892285	75
+VIR	Virgin Islands (U.S.)	11912	43
+YEM	"Yemen, Rep."	2524606	98
+YUG	"Yugoslavia, FR (Serbia/Montenegro)"	2080665	26
+ZMB	Zambia	3122575	73
+ZWE	Zimbabwe	3064407	61
+			
