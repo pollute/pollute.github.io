@@ -42,5 +42,5 @@ for (i in 1:498){
 View(EUS02)
 
 # Number of sites exceeding the DLV
-above_DLV.count = count(EUS02$above_DLV.)
+above_DLV.count = count(EUSO2$above_DLV.)
 above_DLV.count[2,2]
