@@ -1,16 +1,20 @@
 ---
-title: "DMT"
+title: "Pollution Stuff"
 author: "Elise"
 date: "January 22, 2016"
 output: html_document
 ---
 
-# Types of Data
+## Types of Data
+Data will be contaminant concentrations and descriptior variables.
+Data will be saved in .csv files.
 
-# Data and Metadata Standards
 
-# Policies for Accss and Sharing
+## Data and Metadata Standards
+Metadata will be saved in a corresponding .txt file (eg EUSO2.csv has a companion EUSO2.txt metadata file.) This file will describe the source and variables in the .csv data.
 
-# Policies and Provisions for Re-Use, Re-Distribution
+## Policies for Access and Sharing
 
-# Plans for Archiving and Preservation of Access
+## Policies and Provisions for Re-Use, Re-Distribution
+
+## Plans for Archiving and Preservation of Access
