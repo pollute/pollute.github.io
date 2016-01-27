@@ -3,7 +3,7 @@ title: "Pollution Data Group (@Pollute)"
 author: "Elise, Mitchell, Steph and Dannique"
 date: "January 22, 2016"
 output: html_document
-theme: "cerulean"
+theme: lumen
 ---
 
 ###@Pollute Data Management Document
@@ -29,7 +29,7 @@ Data, metadata and processing code will be preserved on the @pollute GitHub repo
 ####Data Question
 Here we examine the question
 
-```{r}
+#```{r}
 
 select()
 filter()
