@@ -1,12 +1,9 @@
 ---
-title: "Pollution Data Group (@Pollute)"
+title: "Pollution Data Group Data Management Plan"
 author: "Elise, Mitchell, Steph and Dannique"
-date: "January 22, 2016"
 output: html_document
-theme: "cerulean"
+theme: lumen
 ---
-
-###@Pollute Data Management Document
 
 #### Types of Data
 Data will be spreadsheets on contaminant concentrations and companion descriptior variables (location, location descriptors, timestamps, etc.).
@@ -25,3 +22,16 @@ Only existing data will be used, so no delay will be present in data availabilit
 
 #### Plans for Archiving and Preservation of Access
 Data, metadata and processing code will be preserved on the @pollute GitHub repository at least until the end of the Winter 2016 quarter, and possibly for longer.
+
+####Data Question
+Here we examine the question... How many cities in Germany have an SO2 value that exceeds 10?
+
+```{r}
+# Need to include the following functions:
+
+# select()
+# filter()
+# group_by()
+# summarize()
+
+```
