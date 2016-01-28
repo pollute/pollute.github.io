@@ -1,7 +1,7 @@
 ---
 title: "Pollute"
 author: "Elise, Mitchell, Steph and Dannique"
-date: "January 22, 2016"
+date: "January 28, 2016"
 output: html_document
 ---
 
@@ -23,3 +23,4 @@ Only existing data will be used, so no delay will be present in data availabilit
 
 #### Plans for Archiving and Preservation of Access
 Data, metadata and processing code will be preserved on the @pollute GitHub repository at least until the end of the Winter 2016 quarter, and possibly for longer.
+
