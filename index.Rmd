@@ -28,11 +28,13 @@ Here we examine the question... How many cities in Germany have an SO2 value tha
 
 ```{r}
 # Need to include the following functions:
-library(dplyr)
+library(readr)
 library(tidyr)
 
-EUSO2 %>% 
-  select(country.iso.code, city_name, ug.m3) %>% 
-  filter(ug.m3 > 10) %>% 
-  summarize(n = n())
+data=read_csv('data/EUSO2.csv')
+
+#EUSO2 %>% 
+#  select(country.iso.code, city_name, ug.m3) %>% 
+#  filter(ug.m3 > 10) %>% 
+#  summarize(n = n())
 ```
