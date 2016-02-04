@@ -26,17 +26,16 @@ Data, metadata and processing code will be preserved on the @pollute GitHub repo
 
 
 ####Data Question
-Here we examine the question... How many monitorining stations in each city in Great Britain have an SO2 value that exceeds 5?
-
+Here we examine the question... How many monitorining stations in each city in Great Britain have air pollution >= 5 micrograms/meter cubed?
 
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # Need to include the following functions:
 source("AirPollution.R")
-Table=AirPollution('GB',5);#finds the cities in Great Britain that have pollution >= 10 micrograms/meter cubed
+Table=AirPollution('GB',5);#finds the cities in Great Britain that have pollution >= 5 micrograms/meter cubed
 
 colnames(Table)[colnames(Table)=="city_name"] <- "City"
-colnames(Table)[colnames(Table)=="n"] <- "number of monitoring stations over"
+colnames(Table)[colnames(Table)=="n"] <- "Stations Exceeding 5 ug/m3"
 
 library(knitr)
 kable(Table)
