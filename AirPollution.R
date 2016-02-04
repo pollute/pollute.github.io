@@ -24,7 +24,8 @@ OUTPUT=EUSO2 %T>%
   filter(ug_m3 > LEVEL) %>% 
   filter(country_iso_code == COUNTRY) %>% 
   group_by(city_name)  %>% 
-  summarize(n = n());
+  summarize(n = n(), mean = mean(ug_m3)) %>%
+  arrange(desc(mean));
 return(OUTPUT)
 }
 
