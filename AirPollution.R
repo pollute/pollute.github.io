@@ -13,21 +13,22 @@
 #' @author Mitchell, Steph, Elise, Dannique
 
 AirPollution=function(COUNTRY,LEVEL){
-
-library(readr)
-library(dplyr)
   
-EUSO2=read_csv('data/EUSO2.csv')
+  library(readr)
+  library(dplyr)
+  library(stringr)# loads str_replace_all function
   
-OUTPUT=EUSO2 %T>% 
-  select(country_iso_code, city_name, ug_m3) %>% 
-  filter(ug_m3 > LEVEL) %>% 
-  filter(country_iso_code == COUNTRY) %>% 
-  group_by(city_name)  %>% 
-  summarize(n = n(), mean = mean(ug_m3)) %>%
-  arrange(desc(mean));
-return(OUTPUT)
+  
+  EUSO2=read_csv('data/EUSO2.csv')
+  
+  EUSO2$city_name=(str_replace_all(EUSO2$city_name, "[^[:alnum:]]", " "))#Removes non-alphanumeric characters with a space which otherwise will cause problems with kable function
+  
+  OUTPUT=EUSO2 %T>% 
+    select(country_iso_code, city_name, ug_m3) %>% 
+    filter(ug_m3 > LEVEL) %>% 
+    filter(country_iso_code == COUNTRY) %>% 
+    group_by(city_name)  %>% 
+    summarize(n = n(), mean = mean(ug_m3)) %>%
+    arrange(desc(mean));
+  return(OUTPUT)
 }
-
-
-
