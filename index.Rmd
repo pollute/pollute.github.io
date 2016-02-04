@@ -36,7 +36,7 @@ Table=AirPollution('GB',5);#finds the cities in Great Britain that have pollutio
 
 colnames(Table)[colnames(Table)=="city_name"] <- "City"
 colnames(Table)[colnames(Table)=="n"] <- "Stations Exceeding 5 ug/m3"
-colnames(Table)[colnames(Table)=="mean"] <- "Mean (ug/m3)"
+colnames(Table)[colnames(Table)=="mean"] <- "Mean of Exceeding Stations (ug/m3)"
 
 library(knitr)
 kable(Table)
