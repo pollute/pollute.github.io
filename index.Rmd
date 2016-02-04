@@ -1,6 +1,7 @@
 ---
 title: "Pollution Data Group Data Management Plan"
 author: "Elise, Mitchell, Steph and Dannique"
+date: "January 28, 2016"
 output: html_document
 theme: lumen
 ---
@@ -23,15 +24,20 @@ Only existing data will be used, so no delay will be present in data availabilit
 #### Plans for Archiving and Preservation of Access
 Data, metadata and processing code will be preserved on the @pollute GitHub repository at least until the end of the Winter 2016 quarter, and possibly for longer.
 
+
 ####Data Question
-Here we examine the question... How many cities in Germany have an SO2 value that exceeds 10?
+Here we examine the question... How many monitorining stations in each city in Great Britain have an SO2 value that exceeds 5?
 
-```{r}
+
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # Need to include the following functions:
+source("AirPollution.R")
+Table=AirPollution('GB',5);#finds the cities in Great Britain that have pollution >= 10 micrograms/meter cubed
 
-# select()
-# filter()
-# group_by()
-# summarize()
+colnames(Table)[colnames(Table)=="city_name"] <- "City"
+colnames(Table)[colnames(Table)=="n"] <- "number of monitoring stations over"
 
+library(knitr)
+kable(Table)
 ```
