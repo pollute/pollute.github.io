@@ -54,3 +54,16 @@ colnames(Table)[colnames(Table)=="mean"] <- "Mean of Exceeding Stations (ug/m3)"
 library(knitr) #loads kable function to make a nicer looking table in output
 kable(Table,digits=2, caption="Cities in Germany that have pollution >= 10 micrograms/meter cubed")
 ```
+
+```{r plot1}
+library(ggplot2)
+library(readr)
+library(dplyr)
+library(stringr)# loads str_replace_all function
+
+EUSO2=read_csv('data/EUSO2.csv')
+
+boxplot = ggplot(EUSO2, aes(y=ug_m3, x=country_iso_code))+geom_boxplot()
+finalplot = boxplot
+```
+
