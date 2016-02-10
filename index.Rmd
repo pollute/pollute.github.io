@@ -55,15 +55,20 @@ library(knitr) #loads kable function to make a nicer looking table in output
 kable(Table,digits=2, caption="Cities in Germany that have pollution >= 10 micrograms/meter cubed")
 ```
 
-```{r plot1}
+```{r SO2summaryplot}
 library(ggplot2)
 library(readr)
 library(dplyr)
-library(stringr)# loads str_replace_all function
 
 EUSO2=read_csv('data/EUSO2.csv')
 
-boxplot = ggplot(EUSO2, aes(y=ug_m3, x=country_iso_code))+geom_boxplot()
-finalplot = boxplot
+#Make simple boxplot
+boxplot = ggplot(EUSO2, aes(y=ug_m3, x=country_iso_code))+geom_boxplot(fill="grey") +
+  theme_bw() +
+  labs(x="Country (ISO Code)", y="ug/m3 SO4") + ggtitle("SO2 Concentrations, EU 2013")
+# Add line designating the WHO cutoff for the annual mean concentration
+finalplot = boxplot + geom_abline(intercept=20,slope=0, colour="red", size=1)
+windows()
+finalplot
 ```
 
