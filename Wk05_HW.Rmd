@@ -1,0 +1,31 @@
+---
+title: "Week 5 Assignment"
+author: "Elise, Mitchell, Steph and Dannique"
+date: "February 9, 2016"
+output: html_document
+theme: paper
+---
+
+```{r, echo=FALSE, message=FALSE}
+#Group Homework Assignment, Week 5
+library(ggplot2)
+library(dplyr)
+library(readr)
+
+thinning = read_csv('data/thinning.csv')
+
+
+
+LAIdata=thinning %>% #This code just cleans up the number of data points by grouping lai values and then averaging evap values... The full dataset is too big to run in a timely fashion! 
+  mutate(lai=round(lai,digits = 2)) %>%
+  mutate(year = as.numeric(as.character(lai)))%>%
+  group_by(lai)%>%
+  summarise(evap=mean(evap))
+
+
+#How does the rate of evapotranspiration (evap) change with leaf area index (lai)? 
+LAIcarbon = ggplot(LAIdata, aes(x = lai, y = evap)) + geom_point(col = 'chartreuse4') + ggtitle('Evapotranspiration Rate Changes with Leaf Area Index') + labs(x = 'Leaf Area Index', y = 'Rate of Evapotranspiration')
+
+LAIcarbon
+```
+

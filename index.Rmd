@@ -55,22 +55,67 @@ library(knitr) #loads kable function to make a nicer looking table in output
 kable(Table,digits=2, caption="Cities in Germany that have pollution >= 10 micrograms/meter cubed")
 ```
 
-```{r SO2summaryplot}
+\
+\
+
+```{r SO2summaryplot, echo=FALSE, message=FALSE}
 library(ggplot2)
 library(readr)
 library(dplyr)
 
 EUSO2=read_csv('data/EUSO2.csv')
 
-#Make simple boxplot
+#Make simple boxplot of EU emmissions
 boxplot = ggplot(EUSO2, aes(y=ug_m3, x=country_iso_code))+geom_boxplot(fill="grey") +
   theme_bw() +
   labs(x="Country (ISO Code)", y="ug/m3 SO4") + ggtitle("SO2 Concentrations, EU 2013")
 # Add line designating the WHO cutoff for the annual mean concentration
 finalplot = boxplot + geom_abline(intercept=20,slope=0, colour="red", size=1)
-windows()
-finalplot
 
-#Could we use stat summary here? Somehow use it with the urban/suburban question?
+finalplot
+```
+
+\
+\
+
+```{r SO2summaryplot2, echo=FALSE, message=FALSE}
+
+#Make simple boxplot of EU emmissions with separations based on suburban and urban testing locations
+
+p2 = ggplot(EUSO2, aes(y=ug_m3, x=country_iso_code,fill=station_type_of_area))+geom_boxplot() + theme_grey() + labs(x="Country (ISO Code)", y="ug/m3 SO4") + ggtitle("SO2 Concentrations By Location, EU 2013")
+
+p2=p2 + scale_fill_discrete(name="Location") + theme(legend.position="top")
+
+p2
+```
+
+\
+\
+
+```{r SO2summaryplot3, echo=FALSE, message=FALSE}
+
+#Make simple boxplot of EU emmissions with separations based on type of station
+EUSO2$type_of_station=replace(EUSO2$type_of_station,EUSO2$type_of_station=='background','Background')
+
+p3 = ggplot(EUSO2, aes(y=ug_m3, x=country_iso_code,fill=type_of_station))+geom_boxplot() + theme_grey() + labs(x="Country (ISO Code)", y="ug/m3 SO4") + ggtitle("SO2 Concentrations By Type, EU 2013")
+
+p3=p3 + scale_fill_discrete(name="Type of Station") + theme(legend.position="top")
+
+p3
+```
+
+\
+\
+```{r SO2summaryplot4, echo=FALSE, message=FALSE}
+#Make simple barplot of EU emission over WHO cutoffs
+
+WHOemit=EUSO2%>%
+  filter(ug_m3 >20) %>%
+  group_by(country_iso_code) %>%
+  summarise(total = length(country_iso_code))
+
+p4 = ggplot(WHOemit, aes(x=country_iso_code, y=total)) + geom_bar(stat="identity",fill='#ff4d4d') + theme_grey() +labs(x="Country (ISO Code)", y="Number of Stations Above WHO cutoff") + ggtitle("SO2 Concentrations Above WHO Cutoff, EU 2013")
+
+p4
 ```
 
