@@ -77,6 +77,7 @@ finalplot
 
 \
 \
+NT suggests answering the "what is the difference" question more directly with a complimenting direct 'urban average' vs 'suburban average' bargraph?
 
 ```{r SO2summaryplot2, echo=FALSE, message=FALSE}
 

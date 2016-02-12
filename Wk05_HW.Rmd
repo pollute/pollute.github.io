@@ -29,3 +29,4 @@ LAIcarbon = ggplot(LAIdata, aes(x = lai, y = evap)) + geom_point(col = 'chartreu
 LAIcarbon
 ```
 
+N.T. suggested coloring data points by thinning % (or other variable) to see if there is something the outliers have in common
