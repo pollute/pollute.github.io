@@ -35,10 +35,15 @@ EUSO2=read_csv('data/EUSO2.csv')%>%
 
 
 GeoCountry <- gvisGeoChart(
-  EUSO2,"iso2c","AveSO2concentration",
-  options=list(
+  EUSO2,locationvar = "iso2c", colorvar = "AveSO2concentration",
+    options=list(
     region='150',
-    width=600, height=400))
+    width=600, height=400,
+    backgroundColor.fill = "#BDBDBD",
+    colorAxis="{minvalue: 50, colors:['#FFEBEE', '#F44336']}"))
+    
 
 plot(GeoCountry)
 ```
+
+
