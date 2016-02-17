@@ -1,0 +1,44 @@
+---
+title: "Week 6 Assignment"
+author: Elise, Mitchell, Steph and Dannique"
+date: "February 16, 2016"
+output: html_document
+---
+
+
+
+
+```{r, echo=F, message=F, results='asis'}
+
+#initial setup
+suppressPackageStartupMessages(library(googleVis))
+# must set this option for googleVis charts to show up
+op <- options(gvis.plot.tag='chart')
+
+#WDI data
+library(WDI)#install.packages("WDI")
+inds = c('SP.DYN.LE00.IN', 'SP.POP.TOTL','NY.GDP.PCAP.CD')
+wdiData = WDI(country="all", indicator=inds,
+               start=1960, end=format(Sys.Date(), "%Y"), extra=TRUE)
+
+#wrangle pollution data
+library(readr)
+library(dplyr)
+EUSO2=read_csv('data/EUSO2.csv')%>%
+  mutate(iso2c=country_iso_code)%>%
+  filter(statistics_year==2013)%>%
+  group_by(iso2c)%>%
+  summarise(AveSO2concentration=mean(ug_m3))%>%
+  inner_join(wdiData,by='iso2c')%>%
+  filter(year==2013)
+
+
+
+GeoCountry <- gvisGeoChart(
+  EUSO2,"iso2c","AveSO2concentration",
+  options=list(
+    region='150',
+    width=600, height=400))
+
+plot(GeoCountry)
+```
