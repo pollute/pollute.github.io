@@ -1,4 +1,4 @@
-#' SO2 air pollution by EU city.
+#' SO2 air pollution in EU cities
 #'
 #' This function summarizes the number of of cities that have air pollution levels
 #'  in micrograms/cubic meter above a certain level.
@@ -9,7 +9,7 @@
 #' @return OUTPUT Number of cities within the country exceeding threshold level
 #' @examples
 #' COUNTRY = DE
-#' LEVEL = 20
+#' LEVEL = 10
 #' AirPollution(COUNTRY, LEVEL)
 #' @export
 AirPollution=function(COUNTRY,LEVEL){
@@ -33,4 +33,5 @@ AirPollution=function(COUNTRY,LEVEL){
   return(OUTPUT)
 }
 
-library(roxygen2)
+
+AirPollution(COUNTRY = 'DE', LEVEL = 10)
