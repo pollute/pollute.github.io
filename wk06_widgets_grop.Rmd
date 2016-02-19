@@ -26,7 +26,7 @@ EUSO2=read_csv('data/EUSO2.csv')%>%
   mutate(iso2c=country_iso_code)%>%
   filter(statistics_year==2013)%>%
   group_by(iso2c)%>%
-  summarise(AveSO2concentration=mean(signif(ug_m3, digits = 2)))%>%
+  summarise(AveSO2concentration=signif(mean(ug_m3), digits = 2))%>%
   inner_join(wdiData,by='iso2c')%>%
   filter(year==2013)
 
