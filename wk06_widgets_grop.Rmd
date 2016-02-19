@@ -26,15 +26,13 @@ EUSO2=read_csv('data/EUSO2.csv')%>%
   mutate(iso2c=country_iso_code)%>%
   filter(statistics_year==2013)%>%
   group_by(iso2c)%>%
-  summarise(`Average ugSO2/m3`=round(mean(ug_m3), digits = 2))%>%
+  summarise(`Average ugSO2 per m3`=round(mean(ug_m3), digits = 2))%>%
   inner_join(wdiData,by='iso2c')%>%
   filter(year==2013)
 
 GeoCountry <- gvisGeoChart(
-  EUSO2,locationvar = "iso2c", colorvar = "Average ugSO2/m3",
+  EUSO2,locationvar = "iso2c", colorvar = "Average ugSO2 per m3",
     options=list(
-    sizeAxis.minValue = 0,
-    sizeAxis.maxValue = 45,
     title ="SO^2 *Concentrations",
     region='150',
     width=1200, height=800,
