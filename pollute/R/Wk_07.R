@@ -30,8 +30,14 @@ AirPollution=function(COUNTRY,LEVEL){
     group_by(city_name)  %>%
     summarize(n = n(), mean = mean(ug_m3)) %>%
     arrange(desc(mean));
-  return(OUTPUT)
+  return(as.data.frame(OUTPUT))
 }
-
-
 AirPollution(COUNTRY = 'DE', LEVEL = 10)
+
+library(testthat)
+
+#Automated Test 1: If all ug_m3 observations < LEVEL, then output should be 0.
+expect_that(str_length(AirPollution('AT',50)$n), equals(integer(0)))
+
+
+
