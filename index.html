@@ -264,7 +264,7 @@ expect_that(length(NumCities('AT',0,'PM2.5')$n), equals(6))
 expect_that(length(NumCities('AT',0,'NO2')$n), equals(6))
 expect_that(length(NumCities('AT',0,'O3')$n), equals(6))</code></pre>
 <p>LvlCities: Summarize the average of each of the 5 pollutants for a given country.</p>
-<pre class="r"><code>#' (Still in development)
+<pre class="r"><code>#' (Still needs tests)
 #' SO2 air pollution in EU cities (2013)
 #'
 #' This function summarizes the mean of multiple pollutantss for a given city 
@@ -284,13 +284,13 @@ LvlCities=function(COUNTRY='AT'){
   library(stringr)
   library(readxl)
   
-  levels=vector(length=5)
+  OUTPUT=vector(length=5)
   
   for(n in c(1, 2, 3, 4, 5)) {
     
     EUSO2=read_excel('data/EUSO22013.xlsx', sheet=n)
     
-    levels[n]=EUSO2 %&gt;%
+    OUTPUT[n]=EUSO2 %&gt;%
       filter(country_iso_code == COUNTRY) %&gt;%
       select(µg_m3) %&gt;%
       summarize(mean(µg_m3));
