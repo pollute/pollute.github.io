@@ -14,8 +14,10 @@
 #' POLLUTIOn='SO2'
 #' NumCities(COUNTRY, LEVEL,POLLUTION)
 #' @export
-NumCities=function(COUNTRY,LEVEL,POLLUTION){
 
+NumCities=function(COUNTRY='AT',LEVEL='6',POLLUTION='SO2'){
+
+  if(LEVEL<0){return("Pollution Levels Cannot be Negative!")}
 
   #select the desired polluiton type
   if(POLLUTION=='SO2'){SHEET=1}
@@ -24,13 +26,12 @@ NumCities=function(COUNTRY,LEVEL,POLLUTION){
   if(POLLUTION=='NO2'){SHEET=4}
   if(POLLUTION=='O3'){SHEET=5}
 
-
   library(readr)
   library(dplyr)
-  library(stringr)# loads str_replace_all function
+  library(stringr)
   library(readxl)
 
- EUSO2=read_excel('data/EUSO22013.xlsx',sheet=SHEET)
+ EUSO2=read_excel('data/EUSO22013.xlsx', sheet=SHEET)
 
   OUTPUT=EUSO2 %T>%
     select(country_iso_code, city_name, µg_m3) %>%
@@ -40,8 +41,8 @@ NumCities=function(COUNTRY,LEVEL,POLLUTION){
     summarize(n = n(), mean = mean(µg_m3)) %>%
     arrange(desc(mean));
   return(as.data.frame(OUTPUT))
+  
 }
-
 
 library(testthat)
 
@@ -51,7 +52,7 @@ expect_that(str_length(NumCities('AT',50,'SO2')$n), equals(integer(0)))
 #Automated Test 2: If all ug_m3 observations > LEVEL, then output should be all cities.
 expect_that(length(NumCities('AT',0,'SO2')$n), equals(6))
 
-#Automated Test 3: Should have 6 values for AT no matter pollution type
+#Automated Test 3: Should have 6 values for AT no matter pollution type.
 expect_that(length(NumCities('AT',0,'SO2')$n), equals(6))
 expect_that(length(NumCities('AT',0,'PM10')$n), equals(6))
 expect_that(length(NumCities('AT',0,'PM2.5')$n), equals(6))
