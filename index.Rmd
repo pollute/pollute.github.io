@@ -120,3 +120,119 @@ p4 = ggplot(WHOemit, aes(x=country_iso_code, y=total)) + geom_bar(stat="identity
 p4
 ```
 
+## R Package Project
+We are currently developing two functions for processing EU pollution data. 
+
+NumCities: Find the number of cities who exceed a given pollution level for a given country, pollutant and threshold pollution level.
+
+```{r R Package Function: NumCities, eval=F}
+
+#' SO2 air pollution in EU cities (2013)
+#'
+#' This function summarizes the number of of cities that have air pollution levels
+#'  in micrograms/cubic meter above a certain level.
+#'
+#' @author Mitchell, Steph, Elise
+#' @param COUNTRY Country of interest, use code (2 letters) chosen from EUSO2 dataset
+#' @param LEVEL Concentration of SO2 pollution (ug/m^3) as threshold level
+#' @param POLLUTION is the pollution type (SO2,PM10, PM2.5,NO2,O3)
+#' @return OUTPUT Number of cities within the country exceeding threshold level
+#' @examples
+#' COUNTRY = 'DE'
+#' LEVEL = 10
+#' POLLUTIOn='SO2'
+#' NumCities(COUNTRY, LEVEL,POLLUTION)
+#' @export
+
+NumCities=function(COUNTRY='AT',LEVEL='6',POLLUTION='SO2'){
+
+  if(LEVEL<0){return("Pollution Levels Cannot be Negative!")}
+
+  #select the desired polluiton type
+  if(POLLUTION=='SO2'){SHEET=1}
+  if(POLLUTION=='PM10'){SHEET=2}
+  if(POLLUTION=='PM2.5'){SHEET=3}
+  if(POLLUTION=='NO2'){SHEET=4}
+  if(POLLUTION=='O3'){SHEET=5}
+
+  library(readr)
+  library(dplyr)
+  library(stringr)
+  library(readxl)
+
+ EUSO2=read_excel('data/EUSO22013.xlsx', sheet=SHEET)
+
+  OUTPUT=EUSO2 %T>%
+    select(country_iso_code, city_name, µg_m3) %>%
+    filter(µg_m3 > LEVEL) %>%
+    filter(country_iso_code == COUNTRY) %>%
+    group_by(city_name)  %>%
+    summarize(n = n(), mean = mean(µg_m3)) %>%
+    arrange(desc(mean));
+  return(as.data.frame(OUTPUT))
+  
+}
+
+library(testthat)
+
+#Automated Test 1: If all ug_m3 observations < LEVEL, then output should be 0.
+expect_that(str_length(NumCities('AT',50,'SO2')$n), equals(integer(0)))
+
+#Automated Test 2: If all ug_m3 observations > LEVEL, then output should be all cities.
+expect_that(length(NumCities('AT',0,'SO2')$n), equals(6))
+
+#Automated Test 3: Should have 6 values for AT no matter pollution type.
+expect_that(length(NumCities('AT',0,'SO2')$n), equals(6))
+expect_that(length(NumCities('AT',0,'PM10')$n), equals(6))
+expect_that(length(NumCities('AT',0,'PM2.5')$n), equals(6))
+expect_that(length(NumCities('AT',0,'NO2')$n), equals(6))
+expect_that(length(NumCities('AT',0,'O3')$n), equals(6))
+
+```
+
+LvlCities: Summarize the average of each of the 5 pollutants for a given country.
+
+```{r R Package Function: LvlCities, eval=F}
+#' (Still in development)
+#' SO2 air pollution in EU cities (2013)
+#'
+#' This function summarizes the mean of multiple pollutantss for a given city 
+#'
+#' @author Mitchell, Steph, Elise
+#' @param COUNTRY Country of interest, use code (2 letters) chosen from EUSO2 dataset
+#' @return OUTPUT Number of cities within the country exceeding threshold level
+#' @examples
+#' COUNTRY = 'DE'
+#' LvlCities(COUNTRY)
+#' @export
+
+LvlCities=function(COUNTRY='AT'){
+
+  library(readr)
+  library(dplyr)
+  library(stringr)
+  library(readxl)
+  
+  levels=vector(length=5)
+  
+  for(n in c(1, 2, 3, 4, 5)) {
+    
+    EUSO2=read_excel('data/EUSO22013.xlsx', sheet=n)
+    
+    levels[n]=EUSO2 %>%
+      filter(country_iso_code == COUNTRY) %>%
+      select(µg_m3) %>%
+      summarize(mean(µg_m3));
+  }
+  
+  names(OUTPUT) = c('SO2', 'PM10', 'PM2.5', 'NO2', 'O3')
+  return(OUTPUT)
+  
+}
+
+# library(testthat)
+
+```
+
+Next: 
+Top5: Return the top 5 highest contaminated cities for a given pollutant
