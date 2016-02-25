@@ -23,14 +23,14 @@ LvlCities=function(COUNTRY='AT'){
     
     EUSO2=read_excel('data/EUSO22013.xlsx', sheet=n)
     
-    levels[n]=EUSO2 %T>%
+    levels[n]=EUSO2 %>%
       filter(country_iso_code == COUNTRY) %>%
       select(µg_m3) %>%
       summarize(mean(µg_m3));
   }
   
-  colnames(OUTPUT) = c('SO2', 'PM10', 'PM2.5', 'NO2', 'O3')
-  return(as.data.frame(OUTPUT))
+  names(OUTPUT) = c('SO2', 'PM10', 'PM2.5', 'NO2', 'O3')
+  return(OUTPUT)
   
 }
 
