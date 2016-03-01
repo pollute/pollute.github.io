@@ -233,6 +233,3 @@ LvlCities=function(COUNTRY='AT'){
 # library(testthat)
 
 ```
-
-Next: 
-Top5: Return the top 5 highest contaminated cities for a given pollutant

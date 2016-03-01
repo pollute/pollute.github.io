@@ -93,13 +93,14 @@ server <- shinyServer(function(input, output) {
    
    output$view <- renderGvis({
      gvisGeoChart(
-        datasetInput(Value),locationvar = "iso2c", colorvar = "Average Value per m3",
+        datasetInput(),locationvar = "iso2c", colorvar = "Value",
         options=list(
           title ="Concentrations",
           region='150',
           width=1200, height=800,
           backgroundColor.fill = "#BDBDBD",
-          colorAxis="{colors:['#FFEBEE', '#F44336']}"))
+          colorAxis="{colors:['#FFEBEE', '#F44336']}"
+          ))
       
    })
 })
