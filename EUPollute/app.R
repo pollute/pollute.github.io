@@ -66,35 +66,40 @@ ui <- shinyUI(fluidPage(
    # Sidebar with a slider input for number of bins 
    sidebarLayout(
       sidebarPanel(
-         selectInput("poll",
+         selectInput("dataset",
                      "Pollutant to display:",
                      pollutants)
       ),
       
       # Show a plot of the generated distribution
       mainPanel(
-         # Tell it to generate the map???
+        htmlOutput("view")
+        )
       )
    )
-))
+)
 
 # Define server logic
 server <- shinyServer(function(input, output) {
-   choose <- reactive({
-     input$poll})
+   datasetInput <- reactive({
+     switch(input$dataset,
+            "PM10" = PM10,
+            "NO2" = NO2,
+            "O3" = O3,
+            "PM2.5" = PM2.5,
+            "BaP" = BaP,
+            "SO2" = SO2)
+     })
    
-   output$gvis <- renderGvis({
-      pmap <- poltot %>%
-        subset(pol=choose)
-      
-      gvisGeoChart(
-        pmap,locationvar = "iso2c", colorvar = "Average Value per m3",
+   output$view <- renderGvis({
+     gvisGeoChart(
+        datasetInput(Value),locationvar = "iso2c", colorvar = "Average Value per m3",
         options=list(
           title ="Concentrations",
           region='150',
           width=1200, height=800,
           backgroundColor.fill = "#BDBDBD",
-          colorAxis="{minvalue: 50, colors:['#FFEBEE', '#F44336']}"))
+          colorAxis="{colors:['#FFEBEE', '#F44336']}"))
       
    })
 })
