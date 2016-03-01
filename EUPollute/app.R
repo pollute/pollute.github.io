@@ -97,7 +97,7 @@ server <- shinyServer(function(input, output) {
         options=list(
           title ="Concentrations",
           region='150',
-          width=1200, height=800,
+          width=600, height=400,
           backgroundColor.fill = "#BDBDBD",
           colorAxis="{colors:['#FFEBEE', '#F44336']}"
           ))
