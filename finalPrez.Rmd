@@ -9,27 +9,30 @@ output: ioslides_presentation
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
-## R Markdown
+## Pollute Team
 
-This is an R Markdown presentation. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+- Our dataset
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document.
+## Goals
 
-## Slide with Bullets
-
-- Bullet 1
-- Bullet 2
+- Clearly communicate hotspots of pollution in the EU
+- Find differences in pollution levels between rural and urban areas
 - Bullet 3
 
-## Slide with R Output
+## Dataset
 
-```{r cars, echo = TRUE}
-summary(cars)
+```{r Pollute Data, echo = TRUE}
+
 ```
 
-## Slide with Plot
+## Pollution Hotspots
 
-```{r pressure}
-plot(pressure)
+```{r }
+
 ```
 
+## Rural vs Urban
+
+```{r }
+
+```
