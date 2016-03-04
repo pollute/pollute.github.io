@@ -3,13 +3,14 @@ title: "finalPrez"
 author: "Elise, Steph, Mitchell"
 date: "March 4, 2016"
 output: ioslides_presentation
+theme: readable
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
-## Pollute Team
+## Team Pollute
 
 - Our dataset
 - Introduce your topic, providing specific scientific questions and problem statements.
