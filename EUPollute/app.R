@@ -27,7 +27,7 @@ NO2 = read_excel('data/EU2013.xlsx', sheet=2)%>%
   mutate(iso2c=`country iso code`)%>%
   group_by(iso2c)%>%
   summarise("Mean"=round(mean(statistic_value), digits = 2),"Maximum"=round(max(statistic_value), digits = 2))%>%
-  mutate(pol="O3")%>%
+  mutate(pol="NO2")%>%
   mutate(unit="microgams per cubic meter")
 
 O3 = read_excel('data/EU2013.xlsx', sheet=3)%>%

@@ -2,8 +2,8 @@ name: EUPollute
 account: sparrow925
 server: shinyapps.io
 appId: 86519
-bundleId: 384814
+bundleId: 387627
 url: https://sparrow925.shinyapps.io/EUPollute/
-when: 1456865370.77352
+when: 1457112041.94406
 asMultiple: FALSE
 asStatic: FALSE
