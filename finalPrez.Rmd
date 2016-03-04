@@ -12,27 +12,28 @@ knitr::opts_chunk$set(echo = FALSE)
 ## Pollute Team
 
 - Our dataset
+- Introduce your topic, providing specific scientific questions and problem statements.
 
 ## Goals
 
 - Clearly communicate hotspots of pollution in the EU
 - Find differences in pollution levels between rural and urban areas
-- Bullet 3
-
-## Dataset
-
-```{r Pollute Data, echo = TRUE}
-
-```
+- Discover which countries/cities exceed pollution standards
 
 ## Pollution Hotspots
 
-```{r }
+```{r Pollution Hotspots}
 
 ```
 
 ## Rural vs Urban
 
-```{r }
+```{r Rural vs Urban}
+
+```
+
+## Pollution Advistories
+
+```{r Pollution Advistories, echo = TRUE}
 
 ```
