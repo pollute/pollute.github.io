@@ -91,7 +91,7 @@ ui <- shinyUI(fluidPage(
 
 # Define server logic
 server <- shinyServer(function(input, output) {
-   
+
   datasetInput = reactive({
      filter(poltot,pol==input$dataset)
      })
@@ -99,7 +99,7 @@ server <- shinyServer(function(input, output) {
    output$view <- renderGvis({
      gvisGeoChart(
        datasetInput(),locationvar = "iso2c", colorvar = input$pollutant, hovervar="unit",
-        
+
         options=list(
           title ="Concentrations",
           region='150',
