@@ -1,13 +1,17 @@
 ---
-title: "finalPrez"
+title: "Team Pollute"
 author: "Elise, Steph, Mitchell"
 date: "March 4, 2016"
 output: ioslides_presentation
+runtime: shiny
 theme: readable
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+```{r setup, echo=F}
+suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(readxl))
+suppressPackageStartupMessages(library(ggvis))
+suppressPackageStartupMessages(library(ggplot2))
 ```
 
 ## Team Pollute
@@ -29,8 +33,44 @@ knitr::opts_chunk$set(echo = FALSE)
 
 ## Rural vs Urban
 
-```{r Rural vs Urban}
+```{r Rural vs Urban, echo=F}
+pollutants = c("PM10", "NO2", "O3", "PM2.5", "BaP", "SO2")
+for  (i in 1:length(pollutants)){
+  DataTable = read_excel('data/EU2013.xlsx', sheet=i)%>%
+    mutate(areatype= toupper(`type_of_station`))%>%
+    mutate(pol=pollutants[i])
+  
+  assign(pollutants[i],DataTable)
+}
 
+poltot = bind_rows(list(PM10, NO2, O3, PM2.5, BaP, SO2))
+```
+
+```{r ru shiny, echo=F}
+library(shiny)
+ui = fluidPage(
+
+  selectInput("dataset", "Pollutant to display:", pollutants),
+  
+  plotOutput(outputId = "main_plot", height = "300px"))
+
+server = function(input, output) {
+  
+    datasetInput = reactive({
+     filter(poltot,pol==input$dataset)
+     })
+  
+  output$main_plot <- renderPlot({
+    
+    ggplot(datasetInput(), aes(statistic_value, fill = areatype)) +
+      geom_histogram(alpha = 0.5, aes(y = ..density..), position = 'identity', bins = 16) +
+      theme_bw()
+
+  })
+  
+  
+}
+shinyApp(ui, server)
 ```
 
 ## Pollution Advisories
