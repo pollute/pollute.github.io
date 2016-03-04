@@ -22,7 +22,7 @@ suppressPackageStartupMessages(library(ggplot2))
 ## Goals
 
 - Clearly communicate hotspots of pollution in the EU
-- Find differences in pollution levels between rural and urban areas
+- Find differences in pollution levels between background and traffic areas
 - Discover which countries/cities exceed pollution standards
 
 ## Pollution Hotspots
@@ -31,35 +31,42 @@ suppressPackageStartupMessages(library(ggplot2))
 
 ```
 
-## Rural vs Urban
+## Background vs Traffic
 
-```{r Rural vs Urban, echo=F}
+```{r BG vs Traffic, echo=F}
+
 pollutants = c("PM10", "NO2", "O3", "PM2.5", "BaP", "SO2")
-for  (i in 1:length(pollutants)){
-  DataTable = read_excel('data/EU2013.xlsx', sheet=i)%>%
-    mutate(areatype= toupper(`type_of_station`))%>%
-    mutate(pol=pollutants[i])
-  
-  assign(pollutants[i],DataTable)
-}
 
-poltot = bind_rows(list(PM10, NO2, O3, PM2.5, BaP, SO2))
-```
-
-```{r ru shiny, echo=F}
 library(shiny)
 ui = fluidPage(
 
-  selectInput("dataset", "Pollutant to display:", pollutants),
+  selectInput("dataset", "Pollutant:", pollutants),
   
-  plotOutput(outputId = "main_plot", height = "300px"))
+  plotOutput(outputId = "main_plot", height = "300px"),
+  
+  textOutput("textx1")
+  
+  )
 
 server = function(input, output) {
   
+  # Data wrangling
+  for  (i in 1:length(pollutants)){
+    DataTable = read_excel('data/EU2013.xlsx', sheet=i)%>%
+      mutate(areatype= toupper(`type_of_station`))%>%
+      mutate(pol=pollutants[i])
+  
+    assign(pollutants[i],DataTable)
+}
+
+    poltot = bind_rows(list(PM10, NO2, O3, PM2.5, BaP, SO2))
+  
+    # Reactive assignment for pollution type
     datasetInput = reactive({
      filter(poltot,pol==input$dataset)
      })
   
+    # The histogram
   output$main_plot <- renderPlot({
     
     ggplot(datasetInput(), aes(statistic_value, fill = areatype)) +
@@ -67,7 +74,6 @@ server = function(input, output) {
       theme_bw()
 
   })
-  
   
 }
 shinyApp(ui, server)
