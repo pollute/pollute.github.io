@@ -44,9 +44,16 @@ ui <- shinyUI(fluidPage(
          selectInput("dataset",
                      "Pollutant to display:",
                      pollutants),
-         selectInput("pollutant",
+         
+         selectInput("statistic",
                      "Statistic to display:",
-                     statistic)
+                     statistic),
+         
+         sliderInput	("cutoff",
+                      "Pollutant Cuttoff",
+                      min=0,
+                      max=100,
+                      value=0)
       ),
 
       # Show a plot of the generated distribution
@@ -60,22 +67,36 @@ ui <- shinyUI(fluidPage(
 # Define server logic
 server <- shinyServer(function(input, output) {
 
-  datasetInput = reactive({
-     filter(poltot,pol==input$dataset)
-     })
+  
+  datasetInput=reactive({
+    switch(input$statistic,
+           
+           'Mean'=poltot%>%
+             filter(pol==input$dataset)%>%
+             filter(Mean >= input$cutoff),
+    
+           'Maximum'=poltot%>%
+            filter(pol==input$dataset)%>%
+            filter(Maximum >= input$cutoff))
+    
+  })
+  
+#  datasetInput = reactive({
+#     filter(poltot,pol==input$dataset)%>%
+ #     filter(as.data.frame.character(input$statistic) >= input$cutoff)
+#     })
   
    output$view <- renderGvis({
      gvisGeoChart(
 
-       datasetInput(),locationvar = "iso2c", colorvar = input$pollutant,
-        
- 
+       datasetInput(),locationvar = "iso2c", colorvar = input$statistic,
         options=list(
           title ="Concentrations",
           region='150',
           width=600, height=800,
           backgroundColor.fill = "#BDBDBD",
-          colorAxis="{colors:['#FFEBEE', '#F44336']}"
+          colorAxis="{colors:['#FFEBEE', '#F44336']}",
+          enableRegionInteractivity=TRUE
           ))
 
    })

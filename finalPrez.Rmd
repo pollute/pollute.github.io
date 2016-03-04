@@ -79,8 +79,8 @@ server = function(input, output) {
 shinyApp(ui, server)
 ```
 
-## Pollution Advistories
+## Pollution Advisories
 
-```{r Pollution Advistories, echo = TRUE}
+```{r Pollution Advisories, echo = TRUE}
 
 ```
