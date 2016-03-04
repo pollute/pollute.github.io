@@ -53,7 +53,7 @@ server = function(input, output) {
   # Data wrangling
   for  (i in 1:length(pollutants)){
     DataTable = read_excel('data/EU2013.xlsx', sheet=i)%>%
-      mutate(areatype= toupper(`type_of_station`))%>%
+      mutate(`Area Type`= toupper(`type_of_station`))%>%
       mutate(pol=pollutants[i])
   
     assign(pollutants[i],DataTable)
@@ -69,9 +69,10 @@ server = function(input, output) {
     # The histogram
   output$main_plot <- renderPlot({
     
-    ggplot(datasetInput(), aes(statistic_value, fill = areatype)) +
+    ggplot(datasetInput(), aes(statistic_value, fill = `Area Type`)) +
       geom_histogram(alpha = 0.5, aes(y = ..density..), position = 'identity', bins = 16) +
-      theme_bw()
+      theme_bw() +
+      labs(x = "Concentration (micrograms per cubic meter")
 
   })
   
