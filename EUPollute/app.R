@@ -14,42 +14,49 @@ library(readxl)
 library(dplyr)
 
 pollutants = c("PM10", "NO2", "O3", "PM2.5", "BaP", "SO2")
+statistic= c('Mean','Maximum')
 
 PM10 = read_excel('data/EU2013.xlsx', sheet=1)%>%
-  mutate(iso2c=`country iso code`)%>%
+  mutate(iso2c= `country iso code`)%>%
   group_by(iso2c)%>%
-  summarise(`Value`=round(mean(statistic_value), digits = 2))%>%
-  mutate(pol="PM10")
+  summarise("Mean"=round(mean(statistic_value), digits = 2),"Maximum"=round(max(statistic_value), digits = 2))%>%
+  mutate(pol="PM10")%>%
+  mutate(unit="microgams per cubic meter")
 
 NO2 = read_excel('data/EU2013.xlsx', sheet=2)%>%
   mutate(iso2c=`country iso code`)%>%
   group_by(iso2c)%>%
-  summarise(`Value`=round(mean(statistic_value), digits = 2))%>%
-  mutate(pol="O3")
+  summarise("Mean"=round(mean(statistic_value), digits = 2),"Maximum"=round(max(statistic_value), digits = 2))%>%
+  mutate(pol="O3")%>%
+  mutate(unit="microgams per cubic meter")
 
 O3 = read_excel('data/EU2013.xlsx', sheet=3)%>%
   mutate(iso2c=`country iso code`)%>%
   group_by(iso2c)%>%
-  summarise(`Value`=round(mean(statistic_value), digits = 2))%>%
-  mutate(pol="O3")
+  summarise("Mean"=round(mean(statistic_value), digits = 2),"Maximum"=round(max(statistic_value), digits = 2))%>%
+  mutate(pol="O3")%>%
+  mutate(unit="microgams per cubic meter")
 
 PM2.5 = read_excel('data/EU2013.xlsx', sheet=4) %>%
   mutate(iso2c=`country iso code`)%>%
   group_by(iso2c)%>%
-  summarise(`Value`=round(mean(statistic_value), digits = 2))%>%
-  mutate(pol="PM2.5")
+  summarise("Mean"=round(mean(statistic_value), digits = 2),"Maximum"=round(max(statistic_value), digits = 2))%>%
+  mutate(pol="PM2.5")%>%
+  mutate(unit="microgams per cubic meter")
 
 BaP = read_excel('data/EU2013.xlsx', sheet=5)%>%
   mutate(iso2c=`country iso code`)%>%
   group_by(iso2c)%>%
-  summarise(`Value`=round(mean(statistic_value), digits = 2))%>%
-  mutate(pol="BaP")
+  summarise("Mean"=round(mean(statistic_value), digits = 2),"Maximum"=round(max(statistic_value), digits = 2))%>%
+  mutate(pol="BaP")%>%
+  mutate(unit="nanogams per cubic meter")
 
 SO2 = read_excel('data/EU2013.xlsx', sheet=6)%>%
   mutate(iso2c=`country iso code`)%>%
   group_by(iso2c)%>%
-  summarise(`Value`=round(mean(statistic_value), digits = 2))%>%
-  mutate(pol="SO2")
+  summarise("Mean"=round(mean(statistic_value), digits = 2),"Maximum"=round(max(statistic_value), digits = 2))%>%
+  mutate(pol="SO2")%>%
+  mutate(unit="microgams per cubic meter")
 
 poltot = bind_rows(list(PM10, NO2, O3, PM2.5, BaP, SO2))
 
@@ -59,18 +66,21 @@ poltot = bind_rows(list(PM10, NO2, O3, PM2.5, BaP, SO2))
 
 # Define UI for application that draws a histogram
 ui <- shinyUI(fluidPage(
-   
+
    # Application title
    titlePanel("Common EU Pollutants (2013)"),
-   
-   # Sidebar with a slider input for number of bins 
+
+   # Sidebar with a slider input for number of bins
    sidebarLayout(
       sidebarPanel(
          selectInput("dataset",
                      "Pollutant to display:",
-                     pollutants)
+                     pollutants),
+         selectInput("pollutant",
+                     "Statistic to display:",
+                     statistic)
       ),
-      
+
       # Show a plot of the generated distribution
       mainPanel(
         htmlOutput("view")
@@ -81,30 +91,26 @@ ui <- shinyUI(fluidPage(
 
 # Define server logic
 server <- shinyServer(function(input, output) {
-   datasetInput <- reactive({
-     switch(input$dataset,
-            "PM10" = PM10,
-            "NO2" = NO2,
-            "O3" = O3,
-            "PM2.5" = PM2.5,
-            "BaP" = BaP,
-            "SO2" = SO2)
-     })
    
+  datasetInput = reactive({
+     filter(poltot,pol==input$dataset)
+     })
+
    output$view <- renderGvis({
      gvisGeoChart(
-        datasetInput(),locationvar = "iso2c", colorvar = "Value",
+       datasetInput(),locationvar = "iso2c", colorvar = input$pollutant, hovervar="unit",
+        
         options=list(
           title ="Concentrations",
           region='150',
-          width=600, height=400,
+          width=600, height=800,
           backgroundColor.fill = "#BDBDBD",
           colorAxis="{colors:['#FFEBEE', '#F44336']}"
           ))
-      
+
    })
 })
 
-# Run the application 
+# Run the application
 shinyApp(ui = ui, server = server)
 
