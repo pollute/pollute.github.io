@@ -16,47 +16,15 @@ library(dplyr)
 pollutants = c("PM10", "NO2", "O3", "PM2.5", "BaP", "SO2")
 statistic= c('Mean','Maximum')
 
-PM10 = read_excel('data/EU2013.xlsx', sheet=1)%>%
-  mutate(iso2c= `country iso code`)%>%
-  group_by(iso2c)%>%
-  summarise("Mean"=round(mean(statistic_value), digits = 2),"Maximum"=round(max(statistic_value), digits = 2))%>%
-  mutate(pol="PM10")%>%
-  mutate(unit="microgams per cubic meter")
-
-NO2 = read_excel('data/EU2013.xlsx', sheet=2)%>%
-  mutate(iso2c=`country iso code`)%>%
-  group_by(iso2c)%>%
-  summarise("Mean"=round(mean(statistic_value), digits = 2),"Maximum"=round(max(statistic_value), digits = 2))%>%
-  mutate(pol="O3")%>%
-  mutate(unit="microgams per cubic meter")
-
-O3 = read_excel('data/EU2013.xlsx', sheet=3)%>%
-  mutate(iso2c=`country iso code`)%>%
-  group_by(iso2c)%>%
-  summarise("Mean"=round(mean(statistic_value), digits = 2),"Maximum"=round(max(statistic_value), digits = 2))%>%
-  mutate(pol="O3")%>%
-  mutate(unit="microgams per cubic meter")
-
-PM2.5 = read_excel('data/EU2013.xlsx', sheet=4) %>%
-  mutate(iso2c=`country iso code`)%>%
-  group_by(iso2c)%>%
-  summarise("Mean"=round(mean(statistic_value), digits = 2),"Maximum"=round(max(statistic_value), digits = 2))%>%
-  mutate(pol="PM2.5")%>%
-  mutate(unit="microgams per cubic meter")
-
-BaP = read_excel('data/EU2013.xlsx', sheet=5)%>%
-  mutate(iso2c=`country iso code`)%>%
-  group_by(iso2c)%>%
-  summarise("Mean"=round(mean(statistic_value), digits = 2),"Maximum"=round(max(statistic_value), digits = 2))%>%
-  mutate(pol="BaP")%>%
-  mutate(unit="nanogams per cubic meter")
-
-SO2 = read_excel('data/EU2013.xlsx', sheet=6)%>%
-  mutate(iso2c=`country iso code`)%>%
-  group_by(iso2c)%>%
-  summarise("Mean"=round(mean(statistic_value), digits = 2),"Maximum"=round(max(statistic_value), digits = 2))%>%
-  mutate(pol="SO2")%>%
-  mutate(unit="microgams per cubic meter")
+for  (i in 1:length(pollutants)){
+  DataTable = read_excel('data/EU2013.xlsx', sheet=i)%>%
+    mutate(iso2c= `country iso code`)%>%
+    group_by(iso2c)%>%
+    summarise("Mean"=round(mean(statistic_value), digits = 2),"Maximum"=round(max(statistic_value), digits = 2))%>%
+    mutate(pol=pollutants[i])
+  
+  assign(pollutants[i],DataTable)
+}
 
 poltot = bind_rows(list(PM10, NO2, O3, PM2.5, BaP, SO2))
 
@@ -95,10 +63,10 @@ server <- shinyServer(function(input, output) {
   datasetInput = reactive({
      filter(poltot,pol==input$dataset)
      })
-
+  
    output$view <- renderGvis({
      gvisGeoChart(
-       datasetInput(),locationvar = "iso2c", colorvar = input$pollutant, hovervar="unit",
+       datasetInput(),locationvar = "iso2c", colorvar = input$pollutant,
         
         options=list(
           title ="Concentrations",
