@@ -1,0 +1,40 @@
+---
+title: "finalPrez"
+author: "Elise, Steph, Mitchell"
+date: "March 4, 2016"
+output: ioslides_presentation
+theme: readable
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Team Pollute
+
+- Our dataset
+- Introduce your topic, providing specific scientific questions and problem statements.
+
+## Goals
+
+- Clearly communicate hotspots of pollution in the EU
+- Find differences in pollution levels between rural and urban areas
+- Discover which countries/cities exceed pollution standards
+
+## Pollution Hotspots
+
+```{r Pollution Hotspots}
+
+```
+
+## Rural vs Urban
+
+```{r Rural vs Urban}
+
+```
+
+## Pollution Advistories
+
+```{r Pollution Advistories, echo = TRUE}
+
+```
