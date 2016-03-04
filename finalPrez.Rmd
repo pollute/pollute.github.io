@@ -1,5 +1,5 @@
 ---
-title: "finalPrez"
+title: "Team Pollute"
 author: "Elise, Steph, Mitchell"
 date: "March 4, 2016"
 output: ioslides_presentation
@@ -11,7 +11,7 @@ theme: readable
 suppressPackageStartupMessages(library(dplyr))
 suppressPackageStartupMessages(library(readxl))
 suppressPackageStartupMessages(library(ggvis))
-
+suppressPackageStartupMessages(library(ggplot2))
 ```
 
 ## Team Pollute
@@ -37,7 +37,7 @@ suppressPackageStartupMessages(library(ggvis))
 pollutants = c("PM10", "NO2", "O3", "PM2.5", "BaP", "SO2")
 for  (i in 1:length(pollutants)){
   DataTable = read_excel('data/EU2013.xlsx', sheet=i)%>%
-    mutate(areatype= `station_type_of_area`)%>%
+    mutate(areatype= toupper(`type_of_station`))%>%
     mutate(pol=pollutants[i])
   
   assign(pollutants[i],DataTable)
@@ -49,34 +49,25 @@ poltot = bind_rows(list(PM10, NO2, O3, PM2.5, BaP, SO2))
 ```{r ru shiny, echo=F}
 library(shiny)
 ui = fluidPage(
-  titlePanel("title panel"),
-  
-  sidebarLayout(position = "right",
-                sidebarPanel( "sidebar panel"),
-                mainPanel("main panel")),
-  
-  sliderInput(inputId = "n_breaks",
-              label = "Number of bins:",
-              min = 1,
-              max = 50,
-              value = 30),
-  
-  actionButton("action", label = "Action"),
+
+  selectInput("dataset", "Pollutant to display:", pollutants),
   
   plotOutput(outputId = "main_plot", height = "300px"))
 
 server = function(input, output) {
   
+    datasetInput = reactive({
+     filter(poltot,pol==input$dataset)
+     })
+  
   output$main_plot <- renderPlot({
     
-    hist(faithful$eruptions,
-         probability = TRUE,
-         breaks = as.numeric(input$n_breaks),
-         xlab = "Duration (minutes)",
-         main = "Geyser eruption duration",
-         col = "lightblue")
-    
+    ggplot(datasetInput(), aes(statistic_value, fill = areatype)) +
+      geom_histogram(alpha = 0.5, aes(y = ..density..), position = 'identity', bins = 16) +
+      theme_bw()
+
   })
+  
   
 }
 shinyApp(ui, server)
