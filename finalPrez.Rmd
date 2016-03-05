@@ -36,5 +36,54 @@ knitr::opts_chunk$set(echo = FALSE)
 ## Pollution Advisories
 
 ```{r Pollution Advisories, echo = TRUE}
+library(readr)
+library(dplyr)
+library(readxl)
+library(RCurl)
+library(devtools)
+library(gridExtra)
+library(jsonlite)
+library(htmltools)
+library(ggplot2)
+#WHO Air Quality Guidelines (annual mean, in ug/m3):
+AQG.PM10 = 20
+AQG.PM2.5 = 10
+AQG.NO2 = 40
+AQG.O3 = 100
+AQG.SO2 = 20
+#Currently, no WHO guidelines for benzo[a]pyrene levels.
 
+# Determine which countries have sites exceeding WHO Air Quality Guidelines. Red line on graphs indicate AQG for annual mean concentration.
+PM10 = read_excel('EU2013.xlsx', sheet=1) 
+
+PM10plot = ggplot(PM10, aes(x=city_name, y=statistic_value)) + geom_point(show.legend = T) + geom_hline(yintercept = AQG.PM10, color = 'red') + ggtitle('PM10') + xlab('Measurement Site') + ylab('PM10 Concentration (ug/m3)')
+windows()
+PM10plot
+
+NO2 = read_excel('EU2013.xlsx', sheet=2)
+
+NO2plot = ggplot(NO2, aes(x=city_name, y=statistic_value)) + geom_point(show.legend = T) + geom_hline(yintercept = AQG.NO2, color = 'red') + ggtitle('NO2') + xlab('Measurement Site') + ylab('NO2 Concentration (ug/m3)')
+windows()
+NO2plot
+
+O3 = read_excel('EU2013.xlsx', sheet=3)
+
+O3plot = ggplot(O3, aes(x=city_name, y=statistic_value)) + geom_point(show.legend = T) + geom_hline(yintercept = AQG.O3, color = 'red') + ggtitle('O3') + xlab('Measurement Site') + ylab('O3 Concentration (ug/m3)')
+windows()
+O3plot
+
+PM2.5 = read_excel('EU2013.xlsx', sheet=4)
+ 
+PM2.5plot = ggplot(PM2.5, aes(x=city_name, y=statistic_value)) + geom_point(show.legend = T) + geom_hline(yintercept = AQG.PM2.5, color = 'red') + ggtitle('PM2.5') + xlab('Measurement Site') + ylab('PM2.5 Concentration (ug/m3)')
+windows()
+PM2.5plot
+
+SO2 = read_excel('EU2013.xlsx', sheet=6)
+
+SO2plot = ggplot(SO2, aes(x=city_name, y=statistic_value)) + geom_point(show.legend = T) + geom_hline(yintercept = AQG.SO2, color = 'red') + ggtitle('SO2') + xlab('Measurement Site') + ylab('SO2 Concentration (ug/m3)')
+windows()
+SO2plot
+
+windows()
+grid.arrange(PM10plot, PM2.5plot, NO2plot, SO2plot, O3plot, nrow=2)
 ```
