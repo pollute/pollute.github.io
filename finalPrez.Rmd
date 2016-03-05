@@ -8,6 +8,7 @@ theme: readable
 ---
 
 ```{r setup, echo=F}
+suppressPackageStartupMessages(library(plyr))
 suppressPackageStartupMessages(library(dplyr))
 suppressPackageStartupMessages(library(readxl))
 suppressPackageStartupMessages(library(ggvis))
@@ -17,7 +18,7 @@ suppressPackageStartupMessages(library(ggplot2))
 ## Team Pollute
 
 - Our dataset
-- Introduce your topic, providing specific scientific questions and problem statements.
+- Introduce topic, providing specific scientific questions and problem statements.
 
 ## Goals
 
@@ -42,9 +43,9 @@ ui = fluidPage(
 
   selectInput("dataset", "Pollutant:", pollutants),
   
-  plotOutput(outputId = "main_plot", height = "300px"),
+  # selectInput("area", "Distinction:", c("Urban vs Suburban", "Background vs Traffic")),
   
-  textOutput("textx1")
+  plotOutput(outputId = "main_plot", height = "300px")
   
   )
 
@@ -52,31 +53,55 @@ server = function(input, output) {
   
   # Data wrangling
   for  (i in 1:length(pollutants)){
-    DataTable = read_excel('data/EU2013.xlsx', sheet=i)%>%
-      mutate(`Area Type`= toupper(`type_of_station`))%>%
+    DataTable = read_excel('data/EU2013.xlsx', sheet=i) %>%
       mutate(pol=pollutants[i])
   
     assign(pollutants[i],DataTable)
 }
 
     poltot = bind_rows(list(PM10, NO2, O3, PM2.5, BaP, SO2))
-  
+
+    # # Reactive assignment for distinction... can't figure out how to make this switch, screw it.
+    # areaInput = reactive({
+    #   switch(input$area, 
+    #                    "Urban vs Suburban" = station_type_of_area,
+    #                    "Background vs Traffic" = type_of_station
+    #                    )
+    #   
+    #   poltot = mutate(poltot, `Area Type` = areaInput())
+    # })
+    
     # Reactive assignment for pollution type
     datasetInput = reactive({
-     filter(poltot,pol==input$dataset)
-     })
-  
+     filter(poltot, pol==input$dataset) })
+
+    # Reactive assignmet for means lines in histogram
+    means = reactive({
+      ddply(
+        datasetInput(), 
+        "station_type_of_area", 
+        summarise, 
+        data.mean=mean(statistic_value, na.rm=T)
+        )
+    })
+    
     # The histogram
   output$main_plot <- renderPlot({
     
-    ggplot(datasetInput(), aes(statistic_value, fill = `Area Type`)) +
-      geom_histogram(alpha = 0.5, aes(y = ..density..), position = 'identity', bins = 16) +
+    ggplot(data=datasetInput(), aes(statistic_value, fill = station_type_of_area)) +
+      geom_histogram(alpha = 0.55, aes(y = ..density..), position = 'identity', bins = 16) +
       theme_bw() +
-      labs(x = "Concentration (micrograms per cubic meter")
+      theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +
+      labs(x = "Mean Annual Concentration (micrograms per cubic meter)") +
+      scale_fill_manual(values=c("honeydew 4", "#E69F00")) +
+      geom_vline(data=means(), aes(xintercept = data.mean, color = station_type_of_area), size = 1.5) +
+      scale_color_manual(values=c("black", "peru"))
 
   })
   
 }
+  
 shinyApp(ui, server)
 ```
 
