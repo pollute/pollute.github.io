@@ -1,24 +1,31 @@
 ---
-title: "finalPrez"
+title: "Team Pollute"
 author: "Elise, Steph, Mitchell"
 date: "March 4, 2016"
 output: ioslides_presentation
+runtime: shiny
 theme: readable
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+```{r setup, echo=F}
+suppressPackageStartupMessages(library(plyr))
+suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(readxl))
+suppressPackageStartupMessages(library(ggvis))
+suppressPackageStartupMessages(library(ggplot2))
+suppressPackageStartupMessages(library(knitr))
+suppressPackageStartupMessages(library(DT))
 ```
 
 ## Team Pollute
 
 - Our dataset
-- Introduce your topic, providing specific scientific questions and problem statements.
+- Introduce topic, providing specific scientific questions and problem statements.
 
 ## Goals
 
 - Clearly communicate hotspots of pollution in the EU
-- Find differences in pollution levels between rural and urban areas
+- Find differences in pollution levels between background and traffic areas
 - Discover which countries/cities exceed pollution standards
 
 ## Pollution Hotspots
@@ -27,63 +34,136 @@ knitr::opts_chunk$set(echo = FALSE)
 
 ```
 
-## Rural vs Urban
+## Background vs Traffic
 
-```{r Rural vs Urban}
+```{r BG vs Traffic, echo=F}
 
+pollutants = c("PM10", "NO2", "O3", "PM2.5", "BaP", "SO2")
+
+library(shiny)
+ui = fluidPage(
+
+  selectInput("dataset", "Pollutant:", pollutants),
+  
+  # selectInput("area", "Distinction:", c("Urban vs Suburban", "Background vs Traffic")),
+  
+  plotOutput(outputId = "main_plot", height = "300px")
+  
+  )
+
+server = function(input, output) {
+  
+  # Data wrangling
+  for  (i in 1:length(pollutants)){
+    DataTable = read_excel('data/EU2013.xlsx', sheet=i) %>%
+      mutate(pol=pollutants[i])
+  
+    assign(pollutants[i],DataTable)
+}
+
+    poltot = bind_rows(list(PM10, NO2, O3, PM2.5, BaP, SO2))
+
+    # # Reactive assignment for distinction... can't figure out how to make this switch, screw it.
+    # areaInput = reactive({
+    #   switch(input$area, 
+    #                    "Urban vs Suburban" = station_type_of_area,
+    #                    "Background vs Traffic" = type_of_station
+    #                    )
+    #   
+    #   poltot = mutate(poltot, `Area Type` = areaInput())
+    # })
+    
+    # Reactive assignment for pollution type
+    datasetInput = reactive({
+     filter(poltot, pol==input$dataset) })
+
+    # Reactive assignmet for means lines in histogram
+    means = reactive({
+      ddply(
+        datasetInput(), 
+        "station_type_of_area", 
+        summarise, 
+        data.mean=mean(statistic_value, na.rm=T)
+        )
+    })
+    
+    # The histogram
+  output$main_plot <- renderPlot({
+    
+    ggplot(data=datasetInput(), aes(statistic_value, fill = station_type_of_area)) +
+      geom_histogram(alpha = 0.55, aes(y = ..density..), position = 'identity', bins = 16) +
+      theme_bw() +
+      theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +
+      labs(x = "Mean Annual Concentration (micrograms per cubic meter)") +
+      scale_fill_manual(values=c("honeydew 4", "#E69F00")) +
+      geom_vline(data=means(), aes(xintercept = data.mean, color = station_type_of_area), size = 1.5) +
+      scale_color_manual(values=c("black", "peru"))
+
+  })
+  
+}
+  
+shinyApp(ui, server)
 ```
 
-## Pollution Advisories
+## Pollution Advisories: a quick data overview
 
-```{r Pollution Advisories, echo = TRUE}
-library(readr)
-library(dplyr)
-library(readxl)
-library(RCurl)
-library(devtools)
+```{r Pollution Advisories, echo = F}
 library(gridExtra)
-library(jsonlite)
-library(htmltools)
-library(ggplot2)
+
 #WHO Air Quality Guidelines (annual mean, in ug/m3):
 AQG.PM10 = 20
 AQG.PM2.5 = 10
 AQG.NO2 = 40
 AQG.O3 = 100
 AQG.SO2 = 20
-#Currently, no WHO guidelines for benzo[a]pyrene levels.
+AQG.BaP = 0.001
+#Currently, no WHO guidelines for benzo[a]pyrene levels. BaP level from EU standards (2012).
 
 # Determine which countries have sites exceeding WHO Air Quality Guidelines. Red line on graphs indicate AQG for annual mean concentration.
-PM10 = read_excel('EU2013.xlsx', sheet=1) 
+PM10 = read_excel('data/EU2013.xlsx', sheet=1) 
 
 PM10plot = ggplot(PM10, aes(x=city_name, y=statistic_value)) + geom_point(show.legend = T) + geom_hline(yintercept = AQG.PM10, color = 'red') + ggtitle('PM10') + xlab('Measurement Site') + ylab('PM10 Concentration (ug/m3)')
-windows()
-PM10plot
 
-NO2 = read_excel('EU2013.xlsx', sheet=2)
+
+NO2 = read_excel('data/EU2013.xlsx', sheet=2)
 
 NO2plot = ggplot(NO2, aes(x=city_name, y=statistic_value)) + geom_point(show.legend = T) + geom_hline(yintercept = AQG.NO2, color = 'red') + ggtitle('NO2') + xlab('Measurement Site') + ylab('NO2 Concentration (ug/m3)')
-windows()
-NO2plot
 
-O3 = read_excel('EU2013.xlsx', sheet=3)
+
+O3 = read_excel('data/EU2013.xlsx', sheet=3)
 
 O3plot = ggplot(O3, aes(x=city_name, y=statistic_value)) + geom_point(show.legend = T) + geom_hline(yintercept = AQG.O3, color = 'red') + ggtitle('O3') + xlab('Measurement Site') + ylab('O3 Concentration (ug/m3)')
-windows()
-O3plot
 
-PM2.5 = read_excel('EU2013.xlsx', sheet=4)
+
+PM2.5 = read_excel('data/EU2013.xlsx', sheet=4)
  
 PM2.5plot = ggplot(PM2.5, aes(x=city_name, y=statistic_value)) + geom_point(show.legend = T) + geom_hline(yintercept = AQG.PM2.5, color = 'red') + ggtitle('PM2.5') + xlab('Measurement Site') + ylab('PM2.5 Concentration (ug/m3)')
-windows()
-PM2.5plot
 
-SO2 = read_excel('EU2013.xlsx', sheet=6)
+
+SO2 = read_excel('data/EU2013.xlsx', sheet=6)
 
 SO2plot = ggplot(SO2, aes(x=city_name, y=statistic_value)) + geom_point(show.legend = T) + geom_hline(yintercept = AQG.SO2, color = 'red') + ggtitle('SO2') + xlab('Measurement Site') + ylab('SO2 Concentration (ug/m3)')
-windows()
-SO2plot
+
+BaP = read_excel('data/EU2013.xlsx', sheet=5)
+ 
+BaPplot = ggplot(BaP, aes(x=city_name, y=statistic_value)) + geom_point(show.legend = T) + geom_hline(yintercept = AQG.BaP, color = 'red') + ggtitle('BaP') + xlab('Measurement Site') + ylab('BaP Concentration (ug/m3)')
 
 windows()
-grid.arrange(PM10plot, PM2.5plot, NO2plot, SO2plot, O3plot, nrow=2)
+grid.arrange(PM10plot, PM2.5plot, NO2plot, SO2plot, O3plot, BaPplot, nrow=2)
+
 ```
+
+#Advisory Spots. Now, to narrow down which cities/countries have the worst air quality levels
+
+```{r Advisory Spots, echo = F}
+Data = read_excel('data/AllAirData.xlsx')
+
+Subset = subset(Data, select=c(iso, city_name, component_caption, statistic_value))
+
+Table=datatable(Subset, options = list(dom = 'ftp'), filter = 'top', colnames = c('Country' = 'iso', 'City' = 'city_name', 'Pollutant Type' = 'component_caption', 'ug/m3' = 'statistic_value'), caption = 'Air Pollutants (ug/m3) in the EU')
+windows()
+Table
+```
+
