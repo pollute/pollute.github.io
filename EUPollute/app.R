@@ -55,15 +55,14 @@ ui <- shinyUI(fluidPage(
                       "Pollutant Cuttoff",
                       min=0,
                       max=100,
-                      value=0),
+                      value=c(0,100)),
          
          actionButton("LimitButton", "Set Cutoff to Limit")
           ),
 
       # Show a plot of the generated distribution
       mainPanel(
-        htmlOutput("view")
-        )
+        htmlOutput("view"))
       )
    )
 )
@@ -71,66 +70,58 @@ ui <- shinyUI(fluidPage(
 # Define server logic
 server <- shinyServer(function(input, output, session) {
   
-  #create data to reset slider
-  sliderMax=reactive({
-    as.character(switch(input$statistic,
-                        
-                        'Mean'=poltot%>%
-                          filter(pol==input$dataset)%>%
-                          summarise(Max=max(Mean,na.rm=TRUE)),
-                 
-                        'Maximum'=poltot%>%
-                          filter(pol==input$dataset)%>%
-                          summarise(Max=max(Maximum,na.rm=TRUE))
-    ))
-  })
-  
-  sliderValue=reactive({
-    as.double(filter(poltot,pol==input$dataset)%>%
-                   summarise(Limit=max(Limit,na.rm=TRUE)))
-  })
-  
-  sliderLabel=reactive({
-    as.character(filter(poltot,pol==input$dataset)%>%
-                   summarise(Lable=max(LimitText,na.rm=TRUE)))
-  })
+#   #create data to reset slider
+#   sliderMax=reactive({
+#     as.character(switch(input$statistic,
+#                         
+#                         'Mean'=poltot%>%
+#                           filter(pol==input$dataset)%>%
+#                           summarise(Max=max(Mean,na.rm=TRUE)),
+#                  
+#                         'Maximum'=poltot%>%
+#                           filter(pol==input$dataset)%>%
+#                           summarise(Max=max(Maximum,na.rm=TRUE))
+#     ))
+#   })
+#   
+#   sliderValue=reactive({
+#     as.double(filter(poltot,pol==input$dataset)%>%
+#                    summarise(Limit=max(Limit,na.rm=TRUE)))
+#   })
+#   
+#   sliderLabel=reactive({
+#     as.character(filter(poltot,pol==input$dataset)%>%
+#                    summarise(Lable=max(LimitText,na.rm=TRUE)))
+#   })
   
 
   #have slider update to inputs
-  observe({
-    updateSliderInput(session, "cutoff",value=0,label=paste("Cutoff Level:",sliderLabel()), max=sliderMax())
-  })
-  
-  
-  SliderV=eventReactive(input$LimitButton, {sliderValue()
-  })
-
-  observe({
-    updateSliderInput(session, "cutoff",value=SliderV())
-  })
+#   observe({
+#     updateSliderInput(session, "cutoff",value=0,label=paste("Cutoff Level:",sliderLabel()), max=sliderMax())
+#   })
+#   
+#   
+#   SliderV=eventReactive(input$LimitButton, {sliderValue()
+#   })
+# 
+#   observe({
+#     updateSliderInput(session, "cutoff",value=SliderV())
+#   })
   
   
   #create dataset for map   
   datasetInput=reactive({
-    switch(input$statistic,
-           
-           'Mean'=poltot%>%
-             filter(pol==input$dataset)%>%
-             filter(Mean >= input$cutoff),
-    
-           'Maximum'=poltot%>%
-            filter(pol==input$dataset)%>%
-            filter(Maximum >= input$cutoff))
-    
+    poltot %>%
+      filter(pol==input$dataset)%>%
+      filter_(sprintf(
+        '%s >= %g & %s <= %g', input$statistic, input$cutoff[1], input$statistic, input$cutoff[2]))
   })
   
 
   #create map
-  
-
-    
    output$view <- renderGvis({
      
+     browser()
      gvisGeoChart(
 
        datasetInput(),locationvar = "iso2c", colorvar = input$statistic,
