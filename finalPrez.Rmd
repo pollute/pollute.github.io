@@ -13,6 +13,7 @@ suppressPackageStartupMessages(library(dplyr))
 suppressPackageStartupMessages(library(readxl))
 suppressPackageStartupMessages(library(ggvis))
 suppressPackageStartupMessages(library(ggplot2))
+suppressPackageStartupMessages(library(tidyr))
 suppressPackageStartupMessages(library(knitr))
 suppressPackageStartupMessages(library(DT))
 ```
@@ -25,7 +26,7 @@ suppressPackageStartupMessages(library(DT))
 ## Goals
 
 - Clearly communicate hotspots of pollution in the EU
-- Find differences in pollution levels between background and traffic areas
+- Find differences in pollution levels between urban and suburban areas
 - Discover which countries/cities exceed pollution standards
 
 ## Pollution Hotspots
@@ -34,74 +35,105 @@ suppressPackageStartupMessages(library(DT))
 
 ```
 
-## Background vs Traffic
+## Pollutant Levels: Urban vs Suburban
 
-```{r BG vs Traffic, echo=F}
+```{r Urb v Sub, echo=F}
 
 pollutants = c("PM10", "NO2", "O3", "PM2.5", "BaP", "SO2")
 
 library(shiny)
 ui = fluidPage(
-
-  selectInput("dataset", "Pollutant:", pollutants),
   
-  # selectInput("area", "Distinction:", c("Urban vs Suburban", "Background vs Traffic")),
-  
-  plotOutput(outputId = "main_plot", height = "300px")
-  
-  )
+    selectInput("dataset", "Pollutant:", pollutants),
+    uiOutput("text1"),
+    plotOutput("main_plot", height = "300px", width = "600px"),
+    tableOutput('table1'),
+    paste("Comparison between urban and suburban was done with a quick-and-dirty two-sample t-test, alpha = 0.05. Assumptions were not tested.")
+)
 
 server = function(input, output) {
   
   # Data wrangling
   for  (i in 1:length(pollutants)){
     DataTable = read_excel('data/EU2013.xlsx', sheet=i) %>%
+      filter(!is.na(`country iso code`)) %>%
+      rename(`Area Type` = station_type_of_area) %>%
       mutate(pol=pollutants[i])
   
     assign(pollutants[i],DataTable)
 }
 
-    poltot = bind_rows(list(PM10, NO2, O3, PM2.5, BaP, SO2))
-
-    # # Reactive assignment for distinction... can't figure out how to make this switch, screw it.
-    # areaInput = reactive({
-    #   switch(input$area, 
-    #                    "Urban vs Suburban" = station_type_of_area,
-    #                    "Background vs Traffic" = type_of_station
-    #                    )
-    #   
-    #   poltot = mutate(poltot, `Area Type` = areaInput())
-    # })
+  poltot = bind_rows(list(PM10, NO2, O3, PM2.5, BaP, SO2))
     
-    # Reactive assignment for pollution type
-    datasetInput = reactive({
-     filter(poltot, pol==input$dataset) })
+  # Reactive assignment for pollution type
+  datasetInput = reactive({
+    filter(poltot, pol==input$dataset) 
+  })
 
-    # Reactive assignmet for means lines in histogram
-    means = reactive({
-      ddply(
-        datasetInput(), 
-        "station_type_of_area", 
-        summarise, 
-        data.mean=mean(statistic_value, na.rm=T)
-        )
-    })
+  # Reactive assignmet for means lines in histogram
+  means = reactive({
+    ddply(
+      datasetInput(), 
+      "`Area Type`", 
+      summarise, 
+      Mean=mean(statistic_value, na.rm=T)
+    )
+  })
     
-    # The histogram
+  # The histogram
   output$main_plot <- renderPlot({
     
-    ggplot(data=datasetInput(), aes(statistic_value, fill = station_type_of_area)) +
+    ggplot(data=datasetInput(), aes(statistic_value, fill = `Area Type`)) +
       geom_histogram(alpha = 0.55, aes(y = ..density..), position = 'identity', bins = 16) +
       theme_bw() +
       theme(panel.border = element_blank(), panel.grid.major = element_blank(),
 panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +
       labs(x = "Mean Annual Concentration (micrograms per cubic meter)") +
       scale_fill_manual(values=c("honeydew 4", "#E69F00")) +
-      geom_vline(data=means(), aes(xintercept = data.mean, color = station_type_of_area), size = 1.5) +
+      geom_vline(data=means(), aes(xintercept = Mean, color = `Area Type`), size = 1.5) +
       scale_color_manual(values=c("black", "peru"))
 
   })
+
+  # Data Wrangling for the Stats
+
+  x = reactive({
+    filter(poltot, `Area Type`=='urban', pol==input$dataset) %>% .$statistic_value
+  })
   
+  y = reactive({
+    filter(poltot, `Area Type`=='suburban', pol==input$dataset) %>% .$statistic_value
+  })
+  
+  pval = reactive({
+    t.test(x(), y(), alternative = "two.sided")$p.value
+  })
+
+  # Text Output
+  
+  output$text1 <- renderUI({
+    if(pval() > 0.05){
+      not = strong('NOT')
+    } else {
+      not = ''
+    }
+    
+    if(pval() > 0.001){
+      pvalrend = sprintf('= %0.3f', pval()) # The f is for 'floating point' to place the decimal
+    } else {
+      pvalrend = '< 0.001'
+    }
+    
+    HTML(sprintf('%s values did %s differ significiantly between urban and suburban areas. (p %s)', input$dataset, not, pvalrend))
+  })
+  
+  # Table Output
+
+  output$table1 <- renderTable({
+    means()
+  },
+  include.rownames=FALSE)
+
 }
   
 shinyApp(ui, server)
