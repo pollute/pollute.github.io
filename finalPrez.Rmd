@@ -346,7 +346,7 @@ Table=datatable(Subset,
                 style = 'bootstrap',
                 options = list(dom = 'tip',pageLength = 4, autoWidth = TRUE), 
                 filter = 'top', 
-                colnames = c('Country' = 'iso', 'City' = 'city_name', 'Pollutant Type' = 'component_caption', 'statistic value' = 'statistic_value'),
+                colnames = c('Country' = 'iso', 'City' = 'city_name', 'Pollutant Type' = 'component_caption', 'Statistic value (ug/m3)' = 'statistic_value'),
                 caption = 'Air Pollutants in the EU'
                 )
 
