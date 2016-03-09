@@ -183,7 +183,7 @@ BaP = read_excel('data/EU2013.xlsx', sheet=5)
 BaPplot = ggplot(BaP, aes(x=city_name, y=statistic_value)) + geom_point(show.legend = T) + geom_hline(yintercept = AQG.BaP, color = 'red') + ggtitle('BaP') + xlab('Measurement Site') + ylab('BaP Concentration (ug/m3)')
 
 windows()
-grid.arrange(PM10plot, PM2.5plot, NO2plot, SO2plot, O3plot, BaPplot, nrow=2)
+print(grid.arrange(PM10plot, PM2.5plot, NO2plot, SO2plot, O3plot, BaPplot, nrow=2))
 
 ```
 
