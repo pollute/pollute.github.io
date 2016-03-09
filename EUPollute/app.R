@@ -12,6 +12,7 @@ library(googleVis)
 library(RCurl)
 library(readxl)
 library(dplyr)
+library(shinydashboard)
 
 pollutants = c("PM10", "NO2", "O3", "PM2.5", "BaP", "SO2")
 statistic= c('Mean','Maximum')
@@ -30,114 +31,131 @@ for  (i in 1:length(pollutants)){
 
 poltot = bind_rows(list(PM10, NO2, O3, PM2.5, BaP, SO2))
 
+
+
+  MaxTable = poltot%>%
+    group_by(pol)%>%
+    summarise("value"=max(Maximum,na.rm=TRUE))
+  
+  
+
+maxvalues=data.frame(t(MaxTable[,2]))
+colnames(maxvalues)=(t(MaxTable[,1]))
+
 ####################
 # Shiney App
 ####################
 
 # Define UI for application that draws a histogram
-ui <- shinyUI(fluidPage(
+ui <- dashboardPage(
 
-   # Application title
-   titlePanel("Common EU Pollutants (2013)"),
+  dashboardHeader(disable = TRUE),
+  dashboardSidebar(disable = TRUE),
+  
 
    # Sidebar with a slider input for number of bins
-   sidebarLayout(
-      sidebarPanel(
+  dashboardBody(
+    fluidRow(
+      column(width = 3,
          selectInput("dataset",
                      "Pollutant to display:",
                      pollutants),
          
          selectInput("statistic",
                      "Statistic to display:",
-                     statistic),
-         
-         sliderInput("cutoff",
-                      "Pollutant Cuttoff",
-                      min=0,
-                      max=100,
-                      value=c(0,100)),
-         
-         actionButton("LimitButton", "Set Cutoff to Limit")
-          ),
+                     statistic)),
+       column(width=4,
+              box(width=12,
+         actionButton("Above", "Normalize to Limit")),
+         box(width=12,
+         actionButton("Reset", "Normalize to Minimum (reset)"))),
+       column(width=5,
+         htmlOutput("LimitText"))
+         ),
 
       # Show a plot of the generated distribution
-      mainPanel(
-        htmlOutput("view"))
-      )
-   )
+       
+    fluidRow(
+      column(height=600, width=12, 
+        box(width=NULL,
+            title = "European Air Pollutants (2013)",
+            status = "primary",
+          htmlOutput("Map")))
+    )
+    )
 )
 
-# Define server logic
-server <- shinyServer(function(input, output, session) {
-  
-#   #create data to reset slider
-#   sliderMax=reactive({
-#     as.character(switch(input$statistic,
-#                         
-#                         'Mean'=poltot%>%
-#                           filter(pol==input$dataset)%>%
-#                           summarise(Max=max(Mean,na.rm=TRUE)),
-#                  
-#                         'Maximum'=poltot%>%
-#                           filter(pol==input$dataset)%>%
-#                           summarise(Max=max(Maximum,na.rm=TRUE))
-#     ))
-#   })
-#   
-#   sliderValue=reactive({
-#     as.double(filter(poltot,pol==input$dataset)%>%
-#                    summarise(Limit=max(Limit,na.rm=TRUE)))
-#   })
-#   
-#   sliderLabel=reactive({
-#     as.character(filter(poltot,pol==input$dataset)%>%
-#                    summarise(Lable=max(LimitText,na.rm=TRUE)))
-#   })
-  
 
-  #have slider update to inputs
-#   observe({
-#     updateSliderInput(session, "cutoff",value=0,label=paste("Cutoff Level:",sliderLabel()), max=sliderMax())
-#   })
-#   
-#   
-#   SliderV=eventReactive(input$LimitButton, {sliderValue()
-#   })
-# 
-#   observe({
-#     updateSliderInput(session, "cutoff",value=SliderV())
-#   })
-  
-  
-  #create dataset for map   
-  datasetInput=reactive({
-    poltot %>%
-      filter(pol==input$dataset)%>%
-      filter_(sprintf(
-        '%s >= %g & %s <= %g', input$statistic, input$cutoff[1], input$statistic, input$cutoff[2]))
+
+
+
+
+# Define server logic
+server <- function(input, output, session) {
+
+  #select by pollution
+  datasetPol=reactive({
+    switch(input$statistic,
+           "Mean"=poltot%>%
+                  filter(pol==input$dataset)%>%
+                  mutate("value"=Mean),
+           
+           "Maximum"=poltot%>%
+                    filter(pol==input$dataset)%>%
+                    mutate("value"=Maximum)
+    )
   })
   
+#creates text for limits 
+  Limitinfo=reactive({
+    as.character(summarise(datasetPol(),max(LimitText,na.rm=TRUE)))
+  })
+    
+  
+#initialize limits
+  limits=reactiveValues(data =NULL)
+#reset limits after changing selection
+observeEvent(input$dataset,{
+  limits$data=c(min(datasetPol()$value,na.rm=TRUE),max(datasetPol()$value,na.rm=TRUE))
+})
+observeEvent(input$Reset,{
+  limits$data=c(min(datasetPol()$value,na.rm=TRUE),max(datasetPol()$value,na.rm=TRUE))
+})
+observeEvent(input$statistic,{
+  limits$data=c(min(datasetPol()$value,na.rm=TRUE),max(datasetPol()$value,na.rm=TRUE))
+})
 
-  #create map
-   output$view <- renderGvis({
-     
-     browser()
+#reset limits after selecting above limit
+observeEvent(input$Above,{
+     limits$data=c(max(datasetPol()$Limit,na.rm=TRUE),
+                   max(max(datasetPol()$Limit,na.rm=TRUE)+1,max(datasetPol()$value,na.rm=TRUE)))
+    })
+   
+   #create map
+   output$Map <- renderGvis({
+
      gvisGeoChart(
-
-       datasetInput(),locationvar = "iso2c", colorvar = input$statistic,
+       datasetPol(),
+       locationvar = "iso2c", 
+       colorvar = input$statistic,
         options=list(
           title ="Concentrations",
           region='150',
-          width=600, height=800,
           backgroundColor.fill = "#BDBDBD",
-          colorAxis="{colors:['#FFEBEE', '#F44336']}",
-          enableRegionInteractivity=TRUE
+          height=450,
+          width=700,
+          colorAxis=paste0("{minValue:", limits$data[1],",maxValue:",limits$data[2],", colors:['#1a9641','#ffffb2', '#ef3b2c', '#99000d']}"),
+          datalessRegionColor='#F5F5F5'
+
           ))
 
    })
-   
-})
 
+   output$LimitText <- renderUI({
+     HTML(paste("European Limits for Pollutant:", Limitinfo(), sep="<br/>"))
+   })
+   }
+   
 # Run the application
 shinyApp(ui = ui, server = server)
 
