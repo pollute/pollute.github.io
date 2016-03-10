@@ -33,7 +33,7 @@ suppressPackageStartupMessages(library(DT))
 
 ```{r Pollution Hotspots,echo=F,message=FALSE}
 suppressPackageStartupMessages(library(googleVis))
-
+library(countrycode)
 library(shiny)
 library(googleVis)
 library(RCurl)
@@ -50,7 +50,8 @@ for  (i in 1:length(pollutants)){
     mutate(iso2c= `country iso code`)%>%
     group_by(iso2c)%>%
     summarise("Limit"=max(Limit),"LimitText"=max(LimitText),"Mean"=round(mean(statistic_value), digits = 2),"Maximum"=round(max(statistic_value), digits = 2))%>%
-    mutate(pol=pollutants[i])
+    mutate(pol=pollutants[i])%>%
+    mutate(name=countrycode::countrycode(iso2c,'iso2c','country.name'))
   
   
   assign(pollutants[i],DataTable)
@@ -163,7 +164,7 @@ observeEvent(input$Above,{
 
      gvisGeoChart(
        datasetPol(),
-       locationvar = "iso2c", 
+       locationvar = "name", 
        colorvar = input$statistic,
         options=list(
           title ="Concentrations",
@@ -187,20 +188,40 @@ observeEvent(input$Above,{
 shinyApp(ui = ui, server = server)
 ```
 
-## Pollutant Levels: Urban vs Suburban
+## Pollutant Levels: Testing Location
 
 ```{r Urb v Sub, echo=F}
 
 pollutants = c("PM10", "NO2", "O3", "PM2.5", "BaP", "SO2")
 
 library(shiny)
-ui = fluidPage(
+library(countrycode)
+ui <- dashboardPage(
+
+  dashboardHeader(disable = TRUE),
+  dashboardSidebar(disable = TRUE),
   
-    selectInput("dataset", "Pollutant:", pollutants),
-    uiOutput("text1"),
+
+   # Sidebar with a slider input for number of bins
+  dashboardBody(
+    fluidRow(
+      column(width = 4,
+        selectInput("dataset", "Pollutant:", pollutants),
+        selectInput("comp","Location",c("urban v. suburban", "traffic v. background"))),
+      column(width=4),
+      column(width = 4,
+             box(width=12, height=120,
+      tableOutput('table1')))
+      ),
+    
+    column(width = 12,
+           box(width=12,heigth=50,
+        uiOutput("text1"))),
+    
+    box(width=12,
     plotOutput("main_plot", height = "300px", width = "600px"),
-    tableOutput('table1'),
-    paste("Comparison between urban and suburban was done with a quick-and-dirty two-sample t-test, alpha = 0.05. Assumptions were not tested.")
+    paste("Comparison between location types was done with a quick-and-dirty two-sample t-test, alpha = 0.05. Assumptions were not tested."))
+)
 )
 
 server = function(input, output) {
@@ -209,6 +230,8 @@ server = function(input, output) {
   for  (i in 1:length(pollutants)){
     DataTable = read_excel('data/EU2013.xlsx', sheet=i) %>%
       filter(!is.na(`country iso code`)) %>%
+      rename(`Traffic Type`=type_of_station)%>%
+      mutate(`Traffic Type`=tolower(`Traffic Type`))%>%
       rename(`Area Type` = station_type_of_area) %>%
       mutate(pol=pollutants[i])
   
@@ -217,32 +240,41 @@ server = function(input, output) {
 
   poltot = bind_rows(list(PM10, NO2, O3, PM2.5, BaP, SO2))
     
-  # Reactive assignment for pollution type
-  datasetInput = reactive({
-    filter(poltot, pol==input$dataset) 
-  })
 
   # Reactive assignmet for means lines in histogram
-  means = reactive({
-    ddply(
-      datasetInput(), 
-      "`Area Type`", 
-      summarise, 
-      Mean=mean(statistic_value, na.rm=T)
+  
+  LocationData=reactive({
+    switch(input$comp,
+      "urban v. suburban" =filter(poltot, pol==input$dataset)%>%
+        mutate(`Location Type`=`Area Type`),
+      
+          "traffic v. background"= filter(poltot, pol==input$dataset)%>%
+        mutate(`Location Type`=`Traffic Type`))
+  })
+  
+    means = reactive({
+    switch(input$comp,
+      "urban v. suburban" = LocationData()%>% 
+      group_by(`Location Type`)%>% 
+      summarise(Mean=mean(statistic_value, na.rm=T)),
+    
+    "traffic v. background"= LocationData()%>% 
+      group_by(`Location Type`)%>% 
+      summarise(Mean=mean(statistic_value, na.rm=T))
     )
   })
     
   # The histogram
   output$main_plot <- renderPlot({
-    
-    ggplot(data=datasetInput(), aes(statistic_value, fill = `Area Type`)) +
+    browser
+    ggplot(data=LocationData(), aes(statistic_value, fill = `Location Type`)) +
       geom_histogram(alpha = 0.55, aes(y = ..density..), position = 'identity', bins = 16) +
       theme_bw() +
       theme(panel.border = element_blank(), panel.grid.major = element_blank(),
 panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +
       labs(x = "Mean Annual Concentration (micrograms per cubic meter)") +
       scale_fill_manual(values=c("honeydew 4", "#E69F00")) +
-      geom_vline(data=means(), aes(xintercept = Mean, color = `Area Type`), size = 1.5) +
+      geom_vline(data=means(), aes(xintercept = Mean,color=`Location Type`), size = 1.5) +
       scale_color_manual(values=c("black", "peru"))
 
   })
@@ -250,14 +282,17 @@ panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
   # Data Wrangling for the Stats
 
   x = reactive({
-    filter(poltot, `Area Type`=='urban', pol==input$dataset) %>% .$statistic_value
+    filter(LocationData(), `Location Type`=='urban'|`Location Type`=='background', pol==input$dataset) %>% .$statistic_value
   })
   
   y = reactive({
-    filter(poltot, `Area Type`=='suburban', pol==input$dataset) %>% .$statistic_value
+    filter(LocationData(), `Location Type`=='suburban'|`Location Type`=='traffic', pol==input$dataset) %>% .$statistic_value
   })
   
   pval = reactive({
+    
+        browser()
+    
     t.test(x(), y(), alternative = "two.sided")$p.value
   })
 
@@ -276,7 +311,7 @@ panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
       pvalrend = '< 0.001'
     }
     
-    HTML(sprintf('%s values did %s differ significiantly between urban and suburban areas. (p %s)', input$dataset, not, pvalrend))
+    HTML(sprintf('%s values did %s differ significiantly between location types. (p %s)', input$dataset, not, pvalrend))
   })
   
   # Table Output
