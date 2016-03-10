@@ -191,7 +191,7 @@ shinyApp(ui = ui, server = server)
 
 ## Pollutant Levels: Testing Location
 
-```{r Urb v Sub, echo=F}
+```{r Location Tests, echo=F}
 
 pollutants = c("PM10", "NO2", "O3", "PM2.5", "BaP", "SO2")
 
@@ -202,17 +202,16 @@ ui <- dashboardPage(
   dashboardHeader(disable = TRUE),
   dashboardSidebar(disable = TRUE),
   
-
-   # Sidebar with a slider input for number of bins
   dashboardBody(
     fluidRow(
       column(width = 4,
         selectInput("dataset", "Pollutant:", pollutants),
-        selectInput("comp","Location",c("urban v. suburban", "traffic v. background"))),
+        selectInput("comp","Locations:",c("urban v. suburban", "traffic v. background"))),
       column(width=4),
       column(width = 4,
              box(width=12, height=120,
-      tableOutput('table1')))
+                 tableOutput('table1'))
+            )
       ),
     
     column(width = 12,
@@ -221,7 +220,7 @@ ui <- dashboardPage(
     
     box(width=12,
     plotOutput("main_plot", height = "300px", width = "600px"),
-    paste("Comparison between location types was done with a quick-and-dirty two-sample t-test, alpha = 0.05. Assumptions were not tested."))
+    sprintf("Comparison between location types was done with a quick-and-dirty two-sample t-test, alpha = 0.05. Assumptions were not tested."))
 )
 )
 
@@ -234,7 +233,8 @@ server = function(input, output) {
       rename(`Traffic Type`=type_of_station)%>%
       mutate(`Traffic Type`=tolower(`Traffic Type`))%>%
       rename(`Area Type` = station_type_of_area) %>%
-      mutate(pol=pollutants[i])
+      mutate(pol=pollutants[i]) %>%
+      select(`Area Type`, `Traffic Type`, pol, statistic_value)
   
     assign(pollutants[i],DataTable)
 }
@@ -249,7 +249,7 @@ server = function(input, output) {
       "urban v. suburban" =filter(poltot, pol==input$dataset)%>%
         mutate(`Location Type`=`Area Type`),
       
-          "traffic v. background"= filter(poltot, pol==input$dataset)%>%
+      "traffic v. background"= filter(poltot, pol==input$dataset)%>%
         mutate(`Location Type`=`Traffic Type`))
   })
   
@@ -275,7 +275,7 @@ server = function(input, output) {
 panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +
       labs(x = "Mean Annual Concentration (micrograms per cubic meter)") +
       scale_fill_manual(values=c("honeydew 4", "#E69F00")) +
-      geom_vline(data=means(), aes(xintercept = Mean,color=`Location Type`), size = 1.5) +
+      geom_vline(data=means(), aes(xintercept = Mean, color=`Location Type`), size = 1.5) +
       scale_color_manual(values=c("black", "peru"))
 
   })
@@ -301,9 +301,9 @@ panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
   
   output$text1 <- renderUI({
     if(pval() > 0.05){
-      not = strong('NOT')
+      not = paste('did', strong('NOT'), 'differ')
     } else {
-      not = ''
+      not = 'differed'
     }
     
     if(pval() > 0.001){
@@ -312,7 +312,7 @@ panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
       pvalrend = '< 0.001'
     }
     
-    HTML(sprintf('%s values did %s differ significiantly between location types. (p %s)', input$dataset, not, pvalrend))
+    HTML(sprintf('%s values %s significiantly between %s. (p %s)', input$dataset, not, input$comp, pvalrend))
   })
   
   # Table Output
@@ -325,6 +325,53 @@ panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
 }
   
 shinyApp(ui, server)
+```
+
+## Location Test Statistical Summary
+```{r echo=F}
+pollutants = c("PM10", "NO2", "O3", "PM2.5", "BaP", "SO2")
+
+     for  (i in 1:length(pollutants)){
+    DataTable = read_excel('data/EU2013.xlsx', sheet=i) %>%
+      filter(!is.na(`country iso code`)) %>%
+      rename(`Traffic Type`=type_of_station)%>%
+      mutate(`Traffic Type`=tolower(`Traffic Type`))%>%
+      rename(`Area Type` = station_type_of_area) %>%
+      mutate(pol=pollutants[i]) %>%
+      select(`Area Type`, `Traffic Type`, pol, statistic_value)
+  
+    assign(pollutants[i],DataTable)
+}
+
+  poltot = bind_rows(list(PM10, NO2, O3, PM2.5, BaP, SO2))
+  
+for (i in 1:length(pollutants)) {
+  x = filter(poltot, `Area Type`=='urban', pol==pollutants[i]) %>% .$statistic_value
+  y = filter(poltot, `Area Type`=='suburban', pol==pollutants[i]) %>% .$statistic_value
+  temp = t.test(x, y, alternative = "two.sided")$p.value
+  assign(pollutants[i], temp)
+}
+  Areapvals = c(PM10, NO2, O3, PM2.5, BaP, SO2)
+  
+for (i in 1:length(pollutants)) {
+  x = filter(poltot, `Traffic Type`=='background', pol==pollutants[i]) %>% .$statistic_value
+  y = filter(poltot, `Traffic Type`=='traffic', pol==pollutants[i]) %>% .$statistic_value
+  temp = t.test(x, y, alternative = "two.sided")$p.value
+  assign(pollutants[i], temp)
+}
+  Trafpvals = c(PM10, NO2, O3, PM2.5, BaP, SO2)
+    
+Stats = cbind("Pollutant" = pollutants, "Traffic vs Bg pval" = round(Trafpvals, 3), "Urban vs Suburban pval" = round(Areapvals, 3)) 
+
+PValsTable=datatable(Stats, 
+                style = 'bootstrap',
+                options = list(dom = 't',pageLength = 6, autoWidth = TRUE), 
+                filter = 'top', 
+                caption = 'P Values for Air Quality Comparisons'
+                )
+
+PValsTable
+
 ```
 
 
@@ -360,9 +407,9 @@ Table
 # #Currently, no WHO guidelines for benzo[a]pyrene levels. BaP level from EU standards (2012). EU does not measure PM10, SO2, and O3 do not per WHO guidelines.
  
 # # Determine which countries have sites exceeding WHO Air Quality Guidelines. Red line on graphs indicate AQG for annual mean concentration.
-PM10 = read_excel('data/EU2013.xlsx', sheet=1) 
- 
- PM10plot = ggplot(PM10, aes(x=city_name, y=statistic_value)) + geom_point(show.legend = T) + geom_hline(yintercept = AQG.PM10, color = 'red') + ggtitle('PM10') + xlab('Measurement Site') + ylab('PM10 Concentration (ug/m3)')
+# PM10 = read_excel('data/EU2013.xlsx', sheet=1) 
+#  
+#  PM10plot = ggplot(PM10, aes(x=city_name, y=statistic_value)) + geom_point(show.legend = T) + geom_hline(yintercept = AQG.PM10, color = 'red') + ggtitle('PM10') + xlab('Measurement Site') + ylab('PM10 Concentration (ug/m3)')
  
  
 NO2 = read_excel('data/EU2013.xlsx', sheet=2)
@@ -370,9 +417,9 @@ NO2 = read_excel('data/EU2013.xlsx', sheet=2)
  NO2plot = ggplot(NO2, aes(x=city_name, y=statistic_value)) + geom_point(show.legend = T) + geom_hline(yintercept = AQG.NO2, color = 'red') + ggtitle('NO2') + xlab('Measurement Site') + ylab('NO2 Concentration (ug/m3)')
  
  
-O3 = read_excel('data/EU2013.xlsx', sheet=3)
- 
- O3plot = ggplot(O3, aes(x=city_name, y=statistic_value)) + geom_point(show.legend = T) + geom_hline(yintercept = AQG.O3, color = 'red') + ggtitle('O3') + xlab('Measurement Site') + ylab('O3 Concentration (ug/m3)')
+# O3 = read_excel('data/EU2013.xlsx', sheet=3)
+#  
+#  O3plot = ggplot(O3, aes(x=city_name, y=statistic_value)) + geom_point(show.legend = T) + geom_hline(yintercept = AQG.O3, color = 'red') + ggtitle('O3') + xlab('Measurement Site') + ylab('O3 Concentration (ug/m3)')
 
  
 PM2.5 = read_excel('data/EU2013.xlsx', sheet=4)
@@ -380,9 +427,9 @@ PM2.5 = read_excel('data/EU2013.xlsx', sheet=4)
  PM2.5plot = ggplot(PM2.5, aes(x=city_name, y=statistic_value)) + geom_point(show.legend = T) + geom_hline(yintercept = AQG.PM2.5, color = 'red') + ggtitle('PM2.5') + xlab('Measurement Site') + ylab('PM2.5 Concentration (ug/m3)')
  
  
-SO2 = read_excel('data/EU2013.xlsx', sheet=6)
- 
- SO2plot = ggplot(SO2, aes(x=city_name, y=statistic_value)) + geom_point(show.legend = T) + geom_hline(yintercept = AQG.SO2, color = 'red') + ggtitle('SO2') + xlab('Measurement Site') + ylab('SO2 Concentration (ug/m3)')
+# SO2 = read_excel('data/EU2013.xlsx', sheet=6)
+#  
+#  SO2plot = ggplot(SO2, aes(x=city_name, y=statistic_value)) + geom_point(show.legend = T) + geom_hline(yintercept = AQG.SO2, color = 'red') + ggtitle('SO2') + xlab('Measurement Site') + ylab('SO2 Concentration (ug/m3)')
  
 BaP = read_excel('data/EU2013.xlsx', sheet=5)
   
