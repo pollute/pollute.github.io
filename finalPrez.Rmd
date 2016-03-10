@@ -16,6 +16,7 @@ suppressPackageStartupMessages(library(ggplot2))
 suppressPackageStartupMessages(library(tidyr))
 suppressPackageStartupMessages(library(knitr))
 suppressPackageStartupMessages(library(DT))
+suppressPackageStartupMessages(library(gridExtra))
 ```
 
 ## Team Pollute
@@ -326,54 +327,8 @@ panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
 shinyApp(ui, server)
 ```
 
-## Pollution Advisories: a quick data overview
 
-```{r Pollution Advisories, echo = F,message=FALSE,warning=FALSE}
-# library(gridExtra)
-# 
-# #WHO Air Quality Guidelines (annual mean, in ug/m3):
-# AQG.PM10 = 20
-# AQG.PM2.5 = 10
-# AQG.NO2 = 40
-# AQG.O3 = 100
-# AQG.SO2 = 20
-# AQG.BaP = 0.001
-# #Currently, no WHO guidelines for benzo[a]pyrene levels. BaP level from EU standards (2012).
-# 
-# # Determine which countries have sites exceeding WHO Air Quality Guidelines. Red line on graphs indicate AQG for annual mean concentration.
-# PM10 = read_excel('data/EU2013.xlsx', sheet=1) 
-# 
-# PM10plot = ggplot(PM10, aes(x=city_name, y=statistic_value)) + geom_point(show.legend = T) + geom_hline(yintercept = AQG.PM10, color = 'red') + ggtitle('PM10') + xlab('Measurement Site') + ylab('PM10 Concentration (ug/m3)')
-# 
-# 
-# NO2 = read_excel('data/EU2013.xlsx', sheet=2)
-# 
-# NO2plot = ggplot(NO2, aes(x=city_name, y=statistic_value)) + geom_point(show.legend = T) + geom_hline(yintercept = AQG.NO2, color = 'red') + ggtitle('NO2') + xlab('Measurement Site') + ylab('NO2 Concentration (ug/m3)')
-# 
-# 
-# O3 = read_excel('data/EU2013.xlsx', sheet=3)
-# 
-# O3plot = ggplot(O3, aes(x=city_name, y=statistic_value)) + geom_point(show.legend = T) + geom_hline(yintercept = AQG.O3, color = 'red') + ggtitle('O3') + xlab('Measurement Site') + ylab('O3 Concentration (ug/m3)')
-# 
-# 
-# PM2.5 = read_excel('data/EU2013.xlsx', sheet=4)
-#  
-# PM2.5plot = ggplot(PM2.5, aes(x=city_name, y=statistic_value)) + geom_point(show.legend = T) + geom_hline(yintercept = AQG.PM2.5, color = 'red') + ggtitle('PM2.5') + xlab('Measurement Site') + ylab('PM2.5 Concentration (ug/m3)')
-# 
-# 
-# SO2 = read_excel('data/EU2013.xlsx', sheet=6)
-# 
-# SO2plot = ggplot(SO2, aes(x=city_name, y=statistic_value)) + geom_point(show.legend = T) + geom_hline(yintercept = AQG.SO2, color = 'red') + ggtitle('SO2') + xlab('Measurement Site') + ylab('SO2 Concentration (ug/m3)')
-# 
-# BaP = read_excel('data/EU2013.xlsx', sheet=5)
-#  
-# BaPplot = ggplot(BaP, aes(x=city_name, y=statistic_value)) + geom_point(show.legend = T) + geom_hline(yintercept = AQG.BaP, color = 'red') + ggtitle('BaP') + xlab('Measurement Site') + ylab('BaP Concentration (ug/m3)')
-# 
-# grid.arrange(PM10plot, PM2.5plot, NO2plot, SO2plot, O3plot, BaPplot, nrow=2)
-# 
-```
-
-## Advisory Spots. Now, to narrow down which cities/countries have the worst air quality levels
+## Data Exploration. Which cities/countries have the worst air quality levels?
 
 ```{r Advisory Spots, echo = F,message=FALSE}
 Data = read_excel('data/AllAirData.xlsx')
@@ -384,7 +339,7 @@ Table=datatable(Subset,
                 style = 'bootstrap',
                 options = list(dom = 'tip',pageLength = 4, autoWidth = TRUE), 
                 filter = 'top', 
-                colnames = c('Country' = 'iso', 'City' = 'city_name', 'Pollutant Type' = 'component_caption', 'statistic value' = 'statistic_value'),
+                colnames = c('Country' = 'iso', 'City' = 'city_name', 'Pollutant Type' = 'component_caption', 'Statistic value (ug/m3)' = 'statistic_value'),
                 caption = 'Air Pollutants in the EU'
                 )
 
@@ -393,3 +348,45 @@ Table=datatable(Subset,
 Table
 ```
 
+## Pollution and WHO Guidelines: a quick data overview
+
+```{r Pollution Advisories, echo = F,message=FALSE,warning=FALSE}
+ library(gridExtra)
+ 
+# #WHO Air Quality Guidelines (annual mean, in ug/m3):
+ AQG.PM2.5 = 10
+ AQG.NO2 = 40
+ AQG.BaP = 0.001
+# #Currently, no WHO guidelines for benzo[a]pyrene levels. BaP level from EU standards (2012). EU does not measure PM10, SO2, and O3 do not per WHO guidelines.
+ 
+# # Determine which countries have sites exceeding WHO Air Quality Guidelines. Red line on graphs indicate AQG for annual mean concentration.
+PM10 = read_excel('data/EU2013.xlsx', sheet=1) 
+ 
+ PM10plot = ggplot(PM10, aes(x=city_name, y=statistic_value)) + geom_point(show.legend = T) + geom_hline(yintercept = AQG.PM10, color = 'red') + ggtitle('PM10') + xlab('Measurement Site') + ylab('PM10 Concentration (ug/m3)')
+ 
+ 
+NO2 = read_excel('data/EU2013.xlsx', sheet=2)
+ 
+ NO2plot = ggplot(NO2, aes(x=city_name, y=statistic_value)) + geom_point(show.legend = T) + geom_hline(yintercept = AQG.NO2, color = 'red') + ggtitle('NO2') + xlab('Measurement Site') + ylab('NO2 Concentration (ug/m3)')
+ 
+ 
+O3 = read_excel('data/EU2013.xlsx', sheet=3)
+ 
+ O3plot = ggplot(O3, aes(x=city_name, y=statistic_value)) + geom_point(show.legend = T) + geom_hline(yintercept = AQG.O3, color = 'red') + ggtitle('O3') + xlab('Measurement Site') + ylab('O3 Concentration (ug/m3)')
+
+ 
+PM2.5 = read_excel('data/EU2013.xlsx', sheet=4)
+  
+ PM2.5plot = ggplot(PM2.5, aes(x=city_name, y=statistic_value)) + geom_point(show.legend = T) + geom_hline(yintercept = AQG.PM2.5, color = 'red') + ggtitle('PM2.5') + xlab('Measurement Site') + ylab('PM2.5 Concentration (ug/m3)')
+ 
+ 
+SO2 = read_excel('data/EU2013.xlsx', sheet=6)
+ 
+ SO2plot = ggplot(SO2, aes(x=city_name, y=statistic_value)) + geom_point(show.legend = T) + geom_hline(yintercept = AQG.SO2, color = 'red') + ggtitle('SO2') + xlab('Measurement Site') + ylab('SO2 Concentration (ug/m3)')
+ 
+BaP = read_excel('data/EU2013.xlsx', sheet=5)
+  
+ BaPplot = ggplot(BaP, aes(x=city_name, y=statistic_value)) + geom_point(show.legend = T) + geom_hline(yintercept = AQG.BaP, color = 'red') + ggtitle('BaP') + xlab('Measurement Site') + ylab('BaP Concentration (ug/m3)')
+# 
+grid.arrange(PM2.5plot, NO2plot, BaPplot, nrow=1)
+```
