@@ -7,7 +7,7 @@ runtime: shiny
 theme: readable
 ---
 
-```{r setup, echo=F}
+```{r setup, echo=F,warning=FALSE}
 suppressPackageStartupMessages(library(plyr))
 suppressPackageStartupMessages(library(dplyr))
 suppressPackageStartupMessages(library(readxl))
@@ -32,8 +32,7 @@ suppressPackageStartupMessages(library(gridExtra))
 
 ## Pollution Hotspots
 
-```{r Pollution Hotspots,echo=F,message=FALSE}
-suppressPackageStartupMessages(library(googleVis))
+```{r Pollution Hotspots,echo=F,message=FALSE,warning=FALSE}
 library(countrycode)
 library(shiny)
 library(googleVis)
@@ -45,7 +44,7 @@ library(shinydashboard)
 pollutants = c("PM10", "NO2", "O3", "PM2.5", "BaP", "SO2")
 statistic= c('Mean','Maximum')
 
-#setup data table for map
+#setup data table for countries map
 for  (i in 1:length(pollutants)){
   DataTable = read_excel('EUPollute/data/EU2013.xlsx', sheet=i)%>%
     mutate(iso2c= `country iso code`)%>%
@@ -60,7 +59,24 @@ for  (i in 1:length(pollutants)){
 
 poltot = bind_rows(list(PM10, NO2, O3, PM2.5, BaP, SO2))
 
+#setup data table for cities map
+for  (i in 1:length(pollutants)){
+  DataTable2 = read_excel('EUPollute/data/EU2013.xlsx', sheet=i)%>%
+    mutate(city = city_name)%>%
+    group_by(city)%>%
+    summarise("Limit"=max(Limit),"LimitText"=max(LimitText),"Mean"=round(mean(statistic_value), digits = 2),"Maximum"=round(max(statistic_value), digits = 2))%>%
+    mutate(pol=pollutants[i])
+  
+  assign(pollutants[i],DataTable2)
+}
 
+poltotcity = bind_rows(list(PM10, NO2, O3, PM2.5, BaP, SO2))
+
+latlong = read.delim("data/latlong.txt", row.names=NULL)
+colnames(latlong)=c('ID',"city","lat","long")
+poltotcity=left_join(poltotcity,latlong,by="city")%>%
+  filter(is.na(lat)!=TRUE | is.na(long)!=TRUE)%>%
+  mutate(latlong=paste0(lat,":",long))
 
   MaxTable = poltot%>%
     group_by(pol)%>%
@@ -93,6 +109,7 @@ ui <- dashboardPage(
          selectInput("statistic",
                      "Statistic to display:",
                      statistic)),
+      
        column(width=5,
               box(width=12,
          actionButton("Above", "Normalize to Limit")),
@@ -107,10 +124,19 @@ ui <- dashboardPage(
     fluidRow(
       column(height=600, width=12, 
         box(width=NULL,
-            title = "European Air Pollutants (2013)",
+            title = "European Country Air Pollutants (2013)",
             status = "primary",
           htmlOutput("Map")))
+    ),
+    
+    fluidRow(
+      column(height=600, width=12, 
+        box(width=NULL,
+            title = "European City Air Pollutants (2013)",
+            status = "primary",
+          htmlOutput("Map2")))
     )
+    
     )
 )
 
@@ -122,7 +148,7 @@ ui <- dashboardPage(
 # Define server logic
 server <- function(input, output, session) {
 
-  #select by pollution
+  #select by pollution country
   datasetPol=reactive({
     switch(input$statistic,
            "Mean"=poltot%>%
@@ -130,6 +156,19 @@ server <- function(input, output, session) {
                   mutate("value"=Mean),
            
            "Maximum"=poltot%>%
+                    filter(pol==input$dataset)%>%
+                    mutate("value"=Maximum)
+    )
+  })
+  
+    #select by pollution city
+  datasetPolcity=reactive({
+    switch(input$statistic,
+           "Mean"=poltotcity%>%
+                  filter(pol==input$dataset)%>%
+                  mutate("value"=Mean),
+           
+           "Maximum"=poltotcity%>%
                     filter(pol==input$dataset)%>%
                     mutate("value"=Maximum)
     )
@@ -162,11 +201,10 @@ observeEvent(input$Above,{
    
    #create map
    output$Map <- renderGvis({
-
      gvisGeoChart(
        datasetPol(),
        locationvar = "name", 
-       colorvar = input$statistic,
+       colorvar = "value",
         options=list(
           title ="Concentrations",
           region='150',
@@ -180,6 +218,31 @@ observeEvent(input$Above,{
 
    })
 
+   
+   
+      #create cities map
+   output$Map2 <- renderGvis({
+    gvisGeoChart(
+       datasetPolcity(),
+       locationvar = "latlong", 
+       colorvar="value",
+       hovervar="city",
+        options=list(
+          displayMode="Markers",
+          title ="Concentrations",
+          region='150',
+          backgroundColor.fill = "#BDBDBD",
+          height=450,
+          width=700,
+            colorAxis=paste0("{minValue:", limits$data[1],",maxValue:",limits$data[2],", colors:['#1a9641','#ffffb2', '#ef3b2c', '#99000d']}"),
+          datalessRegionColor='#F5F5F5'
+
+          ))
+
+   })
+   
+   
+   
    output$LimitText <- renderUI({
      HTML(paste("<p><b>European Limits for Pollutant:</b></p>", Limitinfo(), sep="<br/>"))
    })
@@ -328,7 +391,10 @@ shinyApp(ui, server)
 ```
 
 ## Location Test Statistical Summary
-```{r echo=F}
+```{r echo=F,message=FALSE}
+
+library(DT)
+
 pollutants = c("PM10", "NO2", "O3", "PM2.5", "BaP", "SO2")
 
      for  (i in 1:length(pollutants)){
@@ -343,19 +409,19 @@ pollutants = c("PM10", "NO2", "O3", "PM2.5", "BaP", "SO2")
     assign(pollutants[i],DataTable)
 }
 
-  poltot = bind_rows(list(PM10, NO2, O3, PM2.5, BaP, SO2))
+  poltot2 = bind_rows(list(PM10, NO2, O3, PM2.5, BaP, SO2))
   
 for (i in 1:length(pollutants)) {
-  x = filter(poltot, `Area Type`=='urban', pol==pollutants[i]) %>% .$statistic_value
-  y = filter(poltot, `Area Type`=='suburban', pol==pollutants[i]) %>% .$statistic_value
+  x = filter(poltot2, `Area Type`=='urban', pol==pollutants[i]) %>% .$statistic_value
+  y = filter(poltot2, `Area Type`=='suburban', pol==pollutants[i]) %>% .$statistic_value
   temp = t.test(x, y, alternative = "two.sided")$p.value
   assign(pollutants[i], temp)
 }
   Areapvals = c(PM10, NO2, O3, PM2.5, BaP, SO2)
   
 for (i in 1:length(pollutants)) {
-  x = filter(poltot, `Traffic Type`=='background', pol==pollutants[i]) %>% .$statistic_value
-  y = filter(poltot, `Traffic Type`=='traffic', pol==pollutants[i]) %>% .$statistic_value
+  x = filter(poltot2, `Traffic Type`=='background', pol==pollutants[i]) %>% .$statistic_value
+  y = filter(poltot2, `Traffic Type`=='traffic', pol==pollutants[i]) %>% .$statistic_value
   temp = t.test(x, y, alternative = "two.sided")$p.value
   assign(pollutants[i], temp)
 }
