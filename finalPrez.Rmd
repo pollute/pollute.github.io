@@ -76,7 +76,14 @@ latlong = read.delim("data/latlong.txt", row.names=NULL)
 colnames(latlong)=c('ID',"city","lat","long")
 poltotcity=left_join(poltotcity,latlong,by="city")%>%
   filter(is.na(lat)!=TRUE | is.na(long)!=TRUE)%>%
-  mutate(latlong=paste0(lat,":",long))
+  mutate(latlong=paste0(lat,":",long))%>%
+  mutate(size=1)
+
+sizevar=slice(poltotcity,1)%>%
+  mutate(latlong="0:0")%>%
+  mutate(size=2)
+
+poltotcity=rbind(poltotcity,sizevar)
 
   MaxTable = poltot%>%
     group_by(pol)%>%
@@ -227,6 +234,7 @@ observeEvent(input$Above,{
        locationvar = "latlong", 
        colorvar="value",
        hovervar="city",
+       sizevar="size",
         options=list(
           displayMode="Markers",
           title ="Concentrations",
