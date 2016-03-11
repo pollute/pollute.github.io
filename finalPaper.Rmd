@@ -46,14 +46,14 @@ Because WHO does not yet have an AQG for B[a]P, we adopted the 2012 EU Air Quali
 Clearly communicate hotspots of pollution in the EU.
 Aggregating data by country means, the hotspots of PM10 and SO2 pollution tend to be Eastern Mediterranean and Eastern European countries. For B[a]P, PM2.5, NO2, and O3, almost all countries were highlighted in red: nearly all of Europe was denoted as a hotspot. Additionally, we mapped out mean pollution levels by city. This helps identify any outlier observations within a country’s data, which could skew its appearance in the above map for country means.
 
-[Hotspot -- Interactive Shiny App](https://sparrow925.shinyapps.io/finalPrez/#4)
+<iframe src="https://sparrow925.shinyapps.io/finalPrez/#4" width="1000" height="800"></iframe>
 
 ### 2) Test by Area
 
 Find differences in pollution levels between different types of testing areas (urban v. suburban; traffic v. urban background).
 Interestingly, there was not a significant difference in means for each pollutant between urban and suburban sites: only average NO2 measurements were significantly greater in urban settings versus suburban. Mean O3 measurements were actually greater in suburban settings versus urban. All other pollutants had insignificant differences between means for urban and suburban sites. When looking at whether pollutant concentrations are significantly different when the monitoring site is near traffic, we found only SO2 and PM2.5 did not have significant differences in their sample means between observations near traffic and not. Perhaps unsurprisingly, we found the sample traffic mean to be significantly greater than sample background means for NO2 and PM10. However, average background observations were significantly greater than average traffic observations for O3 and B[a]P.
 
-[By Area Testing -- Interactive Shiny App](https://sparrow925.shinyapps.io/finalPrez/#5)
+<iframe src="https://sparrow925.shinyapps.io/finalPrez/#5" width="1000" height="800"></iframe>
 
 Summary of Statistical Findings:
 ```{r echo=F,message=FALSE}
