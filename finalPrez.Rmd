@@ -20,7 +20,7 @@ suppressPackageStartupMessages(library(gridExtra))
 ```
 
 ## Team Pollute -- Air Quality Data
-EU Urban and Large City Audit Projects
+EU Urban and Large City Audit Projects: Improve EU Quality of Life
 
 
 ![Paris and Filthy Filthy Smog](parissmog.png)
