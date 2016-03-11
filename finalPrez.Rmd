@@ -1,5 +1,5 @@
 ---
-title: "Team Pollute"
+title: "ESM 296 -- Team Pollute"
 author: "Elise, Steph, Mitchell"
 date: "March 11, 2016"
 output: ioslides_presentation
@@ -21,14 +21,20 @@ suppressPackageStartupMessages(library(gridExtra))
 
 ## Team Pollute
 
-- Our dataset
-- Introduce topic, providing specific scientific questions and problem statements.
+- Air Quality -- EU Urban and Large City Audit Projects
+
+"To contribute towards the improvement of the quality of urban life."
+
+  + Country, City
+  + Pollutant Measurement (PM10, PM2.5, NO2, O3, BaP and SO2)
+  + Detector near Traffic Source, or Background Reading
+  + Detector located in urban or suburban area
 
 ## Goals
 
-- Clearly communicate hotspots of pollution in the EU
-- Find differences in pollution levels between different observation areas
-- Discover which areas exceed pollution standards
+- Communicate hotspots of pollution in the EU
+- Find differences in pollution levels between different observation area types
+- Discover which areas exceed published air quality standards
 
 ## Pollution Hotspots
 
@@ -260,7 +266,7 @@ observeEvent(input$Above,{
 shinyApp(ui = ui, server = server)
 ```
 
-## Pollutant Levels: Testing Location
+## Pollutant Levels: Testing Area Type Differences
 
 ```{r Location Tests, echo=F}
 
@@ -338,7 +344,6 @@ server = function(input, output) {
     
   # The histogram
   output$main_plot <- renderPlot({
-    browser
     ggplot(data=LocationData(), aes(statistic_value, fill = `Location Type`)) +
       geom_histogram(alpha = 0.55, aes(y = ..density..), position = 'identity', bins = 16) +
       theme_bw() +
@@ -362,9 +367,6 @@ panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
   })
   
   pval = reactive({
-    
-        browser()
-    
     t.test(x(), y(), alternative = "two.sided")$p.value
   })
 
