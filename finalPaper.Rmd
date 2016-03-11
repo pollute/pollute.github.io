@@ -1,0 +1,138 @@
+---
+title: "Live Final Paper"
+author: "Steph, Mitchell, Elise"
+date: "March 11, 2016"
+output: html_document
+---
+
+![Paris Filthy Filthy Smog](parissmog.png)
+
+[Team Pollute's Published Final Presentation](https://sparrow925.shinyapps.io/finalPrez/#1)
+
+## Introduction 
+This project focuses on air quality in the EU. Given the differences in EU countries’ economic activities and levels of development, we decided to explore air quality indicators from the European Environment Agency (2013) for six pollutants: PM2.5, PM10, NO2, O3, SO2, and B[a]P. After some data mining, we wanted our project to clearly communicate pollution hotspots within the EU. Specifically, we wanted to address pollution differences within countries where multiple cities were sampled, between suburban and urban sites in the EU, and how these concentrations relate to air quality standards established by the World Health Organization and the European Commission.
+
+## Innovative Examples
+1.) Clearly communicate hotspots of pollution in the EU.
+One way to explore hotspots of pollution within the EU is spatially. In R, this could be done with leaflets or Google’s gvisGeoChart. Color gradients reflect the differences in air pollution density. Given our data, this could be explored either by country or by city (individual monitoring stations).
+
+2.) Find differences in pollution levels between different types of testing areas (urban v. suburban; traffic v. urban background).
+The observations in this dataset included the types of testing areas, which broke down each observation into either urban or suburban sites and into either traffic or urban background (i.e. not near traffic) observations. We decided to explore whether or not the type of observation had a significant relationship with the concentration of air pollutants.
+
+3.) Discover which countries/cities exceed pollution standards.
+There are several possible interactive tools to communicate the areas which exceed pollution standards: scatterplots (either by country or by pollutant), maps or leaflets for concentrations at each measurement site, and tables to filter by site and pollutant. Because of the number of observations, it would be easiest to wrangle data to compile an interactive dataset. 
+
+## Methods 
+All code can be found in the pollute team’s GitHub repository. https://github.com/pollute/pollute.github.io/blob/master/finalPrez.Rmd
+
+The final release, 1.0, can be found here:
+https://github.com/pollute/pollute.github.io/releases/tag/1.0
+
+1.) Clearly communicate hotspots of pollution in the EU.
+To clearly communicate hotspots, the pollutant levels were displayed graphically in a map. The values inputted into the map were the average and or maximum of all testing locations available within the dataset. The user of the app is able to determine the statistic (mean or maximum) displayed. Furthermore, the user also has the option to set the lower color limit of the map to the European pollutant limit for the pollutant displayed. When this limit is set all green regions are below the European pollutant limit and regions above are yellow or red (depending on amount above limit). This option allows for quick identification of regions above and below the limit. Additionally, a second map displays the same statistics for cities which allows for quick identification of highly polluted cities (note: the cities in the map are limited to cities of which the latitude and longitudes could be identified).
+
+2.) Find differences in pollution levels between different types of testing areas (urban v. suburban; traffic v. urban background).
+To clearly communicate the differences between the urban and suburban area, a two-tone histogram was created as a visual tool to differential how they data overlaps or differs. This used vectors with the statistic values for each pollutant, labeled to demonstrate if the values were from urban areas or suburban areas. The histogram then overlays the density of measurements, color-coded by their origin area. This plot also indicates the means for clarity. Then the values of urban and suburban values are pressed into vectors, and a simple two-sample t test gives a sense of the differences between the two area types.
+
+3.) Discover which countries/cities exceed pollution standards.
+The World Health Organization (WHO) outlines Air Quality Guidelines (AQGs) for five of the indicators.  However, there were inconsistencies between units and observations in our dataset, and those pollutants’ AQGs. For instance, the AQG for SO2 is based on a 24-hour mean, and our dataset did not include daily observation means for the whole year. Pollutants which had annual mean AQGs include: 
+PM2.5: 10 ug/m3
+NO2: 40 ug/m3
+Because WHO does not yet have an AQG for B[a]P, we adopted the 2012 EU Air Quality Standard as a maximum annual mean goal for B[a]P: 1 ng/m3 (0.001 ug/m3). After subsetting the pollutant types, we found a huge number of sites that exceeded these advisory limits, particularly for B[a]P. Aesthetically, this was difficult to present on an interactive plot or leaflet; the number of sites and samples made these features too busy. We determined the best means of identifying the sites which exceed AQGs would be with an interactive filter, which would allow the user to filter by air pollutant, concentration, country, and city.
+
+## Results
+
+### Pollution Hotspots
+1.) Clearly communicate hotspots of pollution in the EU.
+Aggregating data by country means, the hotspots of PM10 and SO2 pollution tend to be Eastern Mediterranean and Eastern European countries. For B[a]P, PM2.5, NO2, and O3, almost all countries were highlighted in red: nearly all of Europe was denoted as a hotspot. Additionally, we mapped out mean pollution levels by city. This helps identify any outlier observations within a country’s data, which could skew its appearance in the above map for country means.
+
+<iframe src="https://sparrow925.shinyapps.io/finalPrez/#4"></iframe>
+
+### Test by Area
+
+2.) Find differences in pollution levels between different types of testing areas (urban v. suburban; traffic v. urban background).
+Interestingly, there was not a significant difference in means for each pollutant between urban and suburban sites: only average NO2 measurements were significantly greater in urban settings versus suburban. Mean O3 measurements were actually greater in suburban settings versus urban. All other pollutants had insignificant differences between means for urban and suburban sites. When looking at whether pollutant concentrations are significantly different when the monitoring site is near traffic, we found only SO2 and PM2.5 did not have significant differences in their sample means between observations near traffic and not. Perhaps unsurprisingly, we found the sample traffic mean to be significantly greater than sample background means for NO2 and PM10. However, average background observations were significantly greater than average traffic observations for O3 and B[a]P.
+
+<iframe src="https://sparrow925.shinyapps.io/finalPrez/#5"></iframe>
+
+### Location Test Statistical Summary
+```{r echo=F,message=FALSE}
+
+suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(readxl))
+suppressPackageStartupMessages(library(ggvis))
+suppressPackageStartupMessages(library(ggplot2))
+suppressPackageStartupMessages(library(tidyr))
+suppressPackageStartupMessages(library(knitr))
+suppressPackageStartupMessages(library(DT))
+
+pollutants = c("PM10", "NO2", "O3", "PM2.5", "BaP", "SO2")
+
+     for  (i in 1:length(pollutants)){
+    DataTable = read_excel('data/EU2013.xlsx', sheet=i) %>%
+      filter(!is.na(`country iso code`)) %>%
+      rename(`Traffic Type`=type_of_station)%>%
+      mutate(`Traffic Type`=tolower(`Traffic Type`))%>%
+      rename(`Area Type` = station_type_of_area) %>%
+      mutate(pol=pollutants[i]) %>%
+      select(`Area Type`, `Traffic Type`, pol, statistic_value)
+  
+    assign(pollutants[i],DataTable)
+}
+
+  poltot2 = bind_rows(list(PM10, NO2, O3, PM2.5, BaP, SO2))
+  
+for (i in 1:length(pollutants)) {
+  x = filter(poltot2, `Area Type`=='urban', pol==pollutants[i]) %>% .$statistic_value
+  y = filter(poltot2, `Area Type`=='suburban', pol==pollutants[i]) %>% .$statistic_value
+  temp = t.test(x, y, alternative = "two.sided")$p.value
+  assign(pollutants[i], temp)
+}
+  Areapvals = c(PM10, NO2, O3, PM2.5, BaP, SO2)
+  
+for (i in 1:length(pollutants)) {
+  x = filter(poltot2, `Traffic Type`=='background', pol==pollutants[i]) %>% .$statistic_value
+  y = filter(poltot2, `Traffic Type`=='traffic', pol==pollutants[i]) %>% .$statistic_value
+  temp = t.test(x, y, alternative = "two.sided")$p.value
+  assign(pollutants[i], temp)
+}
+  Trafpvals = c(PM10, NO2, O3, PM2.5, BaP, SO2)
+    
+Stats = cbind("Pollutant" = pollutants, "Traffic vs Bg pval" = round(Trafpvals, 3), "Urban vs Suburban pval" = round(Areapvals, 3)) 
+
+PValsTable=datatable(Stats, 
+                style = 'bootstrap',
+                options = list(dom = 't',pageLength = 6, autoWidth = TRUE), 
+                filter = 'top', 
+                caption = 'P Values for Air Quality Comparisons'
+                )
+
+PValsTable
+
+```
+
+### Comparison to Established Values
+
+3.) Discover which countries/cities exceed pollution standards.
+Although the data did not provide a reliable comparison between observations and the AQG units, some of the pollutants’ mean annual concentrations were compared to their respective AQGs. Measurements of PM2.5 and B[a]P were overwhelmingly above their WHO AQGs, as well as a significant number of NO2 observations.
+
+img(src = 'AirDataPlots.png', align = 'center')
+
+## Discussion 
+This study highlighted the differences in pollution concentrations for different pollutants, within each country, and across the whole EU. These findings not only describe differences in pollutant concentrations in different observation sites in the EU, but provides a platform to identify cities which may exceed a given standard. This study also explores differences between urban and suburban sites for each pollutant. Knowing which pollutants have significant impacts and where can help inform policy and technological efforts to mitigate air pollution.
+
+Future analyses would benefit from an expanded dataset. While this report was limited in the study of pollution advisories due to different timeframes for AQGs, a more comprehensive dataset would include daily observations for at least a year for each pollutant type. The data could include hourly observations of pollutants whose guidelines are based on averages or observations over a shorter period than daily (e.g. O3’s AQG is an 8-hour mean). Additionally, future studies could explore related health effects and costs. Similar studies are exploring the deleterious effects of poor air health on human and environmental health. Data of health impacts due to poor air quality (e.g. emphysema, asthma, lung cancer) could be visualized spatially (by country and city), along with similar statistical tests for significant differences between observation sites. Such studies would have the ability to map out not only the locations of air quality health issues, but their associated costs as well, including medical expenses and missed work.
+
+In conclusion, this brief overview into the levels of air pollutant concentrations throughout the EU describes pollution hotspots, explores differences between observation sites, and allows the user to compare cities’ pollutant concentrations to standard levels. This analysis can be found at https://github.com/pollute/pollute.github.io/blob/master/finalPrez.Rmd along with interactive data exploration tools.
+
+
+## References
+Data: European Environment Agency. (2013) Air pollutant concentrations at station level (statistics). Retrieved February 7, 2016, from http://www.eea.europa.eu/data-and-maps/data/air-pollutant-concentrations-at-station
+
+Brunekreef, Bert, and Stephen T. Holgate. (2002). Air pollution and health. The Lancet. Retrieved March 8, 2016, from http://v2.ademloos.be/sites/default/files/gezondheid_docs/IVR%203A1%20Brunekreef%20et%20al%20(2002).pdf 
+
+European Commission. (2015, November 19). Air Quality Standards. Retrieved March 2, 2016, from http://ec.europa.eu/environment/air/quality/standards.htm
+
+World Health Organization. (2005). WHO Air quality guidelines for particulate matter, ozone, nitrogen dioxide and sulfur dioxide: Global update 2005. Retrieved March 2, 2016, from http://apps.who.int/iris/bitstream/10665/69477/1/WHO_SDE_PHE_OEH_06.02_eng.pdf
+
+World Health Organization. (2010). Selected Pollutants. Retrieved March 2, 2016, from http://www.euro.who.int/__data/assets/pdf_file/0009/128169/e94535.pdf
