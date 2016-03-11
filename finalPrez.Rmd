@@ -20,8 +20,9 @@ suppressPackageStartupMessages(library(gridExtra))
 ```
 
 ## Team Pollute -- Air Quality Data
-
 EU Urban and Large City Audit Projects
+
+
 ![Paris and Filthy Filthy Smog](parissmog.png)
 
 
@@ -515,3 +516,55 @@ Table=datatable(Subset,
 
 Table
 ```
+
+## Basic Data-wrangling Structure
+```{r eval=F}
+pollutants = c("PM10", "NO2", "O3", "PM2.5", "BaP", "SO2")
+
+     for  (i in 1:length(pollutants)){
+       
+       DataTable = read_excel('data/EU2013.xlsx', sheet=i) %>%
+         filter(!is.na(`country iso code`)) %>%
+         mutate(`Traffic Type`=tolower(`Traffic Type`))%>%
+         mutate(pol=pollutants[i]) %>%
+         select(`Area Type`, `Traffic Type`, pol, statistic_value)
+       
+       assign(pollutants[i],DataTable)
+}
+
+  poltot2 = bind_rows(list(PM10, NO2, O3, PM2.5, BaP, SO2))
+```
+
+
+## Joining for Lat:Long Recognition
+
+```{r eval=F}
+latlong = read.delim("data/latlong.txt", row.names=NULL)
+
+colnames(latlong)=c('ID',"city","lat","long")
+
+poltotcity=left_join(poltotcity,latlong,by="city")%>%
+  filter(is.na(lat)!=TRUE | is.na(long)!=TRUE)%>%
+  mutate(latlong=paste0(lat,":",long))%>%
+  mutate(size=1)
+```
+
+## Little Tricks: sneaky %
+
+```{r eval=F}
+    if(pval() > 0.001){
+      pvalrend = sprintf('= %0.3f', pval())
+    } else {
+      pvalrend = '< 0.001'
+    }
+    
+    HTML(sprintf('%s values %s significiantly between %s. (p %s)', input$dataset, not, input$comp, pvalrend))
+  })
+```
+
+
+## The End!
+
+
+
+Questions?
