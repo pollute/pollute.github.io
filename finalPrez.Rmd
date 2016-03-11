@@ -23,7 +23,7 @@ suppressPackageStartupMessages(library(gridExtra))
 EU Urban and Large City Audit Projects: Improve EU Quality of Life
 
 
-![Paris and Filthy Filthy Smog](parissmog.png)
+![Paris Filthy Filthy Smog](parissmog.png)
 
 
 * Country, City
