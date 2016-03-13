@@ -1,5 +1,5 @@
 ---
-title: "Team Pollute"
+title: "ESM 296 -- Team Pollute"
 author: "Elise, Steph, Mitchell"
 date: "March 11, 2016"
 output: ioslides_presentation
@@ -19,16 +19,25 @@ suppressPackageStartupMessages(library(DT))
 suppressPackageStartupMessages(library(gridExtra))
 ```
 
-## Team Pollute
+## Team Pollute -- Air Quality Data
+EU Urban and Large City Audit Projects: Improve EU Quality of Life
 
-- Our dataset
-- Introduce topic, providing specific scientific questions and problem statements.
+
+![Paris Filthy Filthy Smog](parissmog.png)
+
+
+* Country, City
+* Pollutant Measurement (PM10, PM2.5, NO~2~, O~3~, BaP and SO~2~)
+* Detector near Traffic Source, or Background Reading
+* Detector located in urban or suburban area
 
 ## Goals
 
-- Clearly communicate hotspots of pollution in the EU
-- Find differences in pollution levels between different observation areas
-- Discover which areas exceed pollution standards
+1. Communicate hotspots of pollution in the EU.
+
+2. Find differences in pollution levels between different observation area types.
+
+3. Discover where published air quality standards are exceeded.
 
 ## Pollution Hotspots
 
@@ -261,7 +270,7 @@ observeEvent(input$Above,{
 shinyApp(ui = ui, server = server)
 ```
 
-## Pollutant Levels: Testing Location
+## Pollutant Levels: Area Differences
 
 ```{r Location Tests, echo=F}
 
@@ -291,7 +300,7 @@ ui <- dashboardPage(
         uiOutput("text1"))),
     
     box(width=12,
-    plotOutput("main_plot", height = "300px", width = "600px"),
+    plotOutput("main_plot", height = "250px", width = "600px"),
     sprintf("Comparison between location types was done with a quick-and-dirty two-sample t-test, alpha = 0.05. Assumptions were not tested."))
 )
 )
@@ -339,7 +348,6 @@ server = function(input, output) {
     
   # The histogram
   output$main_plot <- renderPlot({
-    browser
     ggplot(data=LocationData(), aes(statistic_value, fill = `Location Type`)) +
       geom_histogram(alpha = 0.55, aes(y = ..density..), position = 'identity', bins = 16) +
       theme_bw() +
@@ -363,9 +371,6 @@ panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
   })
   
   pval = reactive({
-    
-        browser()
-    
     t.test(x(), y(), alternative = "two.sided")$p.value
   })
 
@@ -512,3 +517,55 @@ Table=datatable(Subset,
 
 Table
 ```
+
+## Basic Data-wrangling Structure
+```{r eval=F}
+pollutants = c("PM10", "NO2", "O3", "PM2.5", "BaP", "SO2")
+
+     for  (i in 1:length(pollutants)){
+       
+       DataTable = read_excel('data/EU2013.xlsx', sheet=i) %>%
+         filter(!is.na(`country iso code`)) %>%
+         mutate(`Traffic Type`=tolower(`Traffic Type`))%>%
+         mutate(pol=pollutants[i]) %>%
+         select(`Area Type`, `Traffic Type`, pol, statistic_value)
+       
+       assign(pollutants[i],DataTable)
+}
+
+  poltot2 = bind_rows(list(PM10, NO2, O3, PM2.5, BaP, SO2))
+```
+
+
+## Joining for Lat:Long Recognition
+
+```{r eval=F}
+latlong = read.delim("data/latlong.txt", row.names=NULL)
+
+colnames(latlong)=c('ID',"city","lat","long")
+
+poltotcity=left_join(poltotcity,latlong,by="city")%>%
+  filter(is.na(lat)!=TRUE | is.na(long)!=TRUE)%>%
+  mutate(latlong=paste0(lat,":",long))%>%
+  mutate(size=1)
+```
+
+## Little Tricks: sneaky %
+
+```{r eval=F}
+    if(pval() > 0.001){
+      pvalrend = sprintf('= %0.3f', pval())
+    } else {
+      pvalrend = '< 0.001'
+    }
+    
+    HTML(sprintf('%s values %s significiantly between %s. (p %s)', input$dataset, not, input$comp, pvalrend))
+  })
+```
+
+
+## The End!
+
+
+
+Questions?
