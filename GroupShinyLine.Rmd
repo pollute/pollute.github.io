@@ -1,0 +1,14 @@
+---
+title: "RunforShiny"
+author: "Elise"
+date: "March 21, 2016"
+output: html_document
+---
+
+By running the code below in R, you can see an app that our Group made!
+(Note that I think the app itself lost some functionality as we tarnsferred the app to the final presentation.)
+
+```{r eval=F}
+shiny::runGitHub("pollute.github.io", username ="pollute", subdir = "EUPollute")
+```
+
