@@ -90,6 +90,7 @@ poltotcity=left_join(poltotcity,latlong,by="city")%>%
 
 sizevar=slice(poltotcity,1)%>%
   mutate(latlong="0:0")%>%
+  mutate(pol="size")%>%
   mutate(size=2)
 
 poltotcity=rbind(poltotcity,sizevar)
@@ -168,11 +169,11 @@ server <- function(input, output, session) {
   datasetPol=reactive({
     switch(input$statistic,
            "Mean"=poltot%>%
-                  filter(pol==input$dataset)%>%
+                  filter(pol==input$dataset | pol=="size")%>%
                   mutate("value"=Mean),
            
            "Maximum"=poltot%>%
-                    filter(pol==input$dataset)%>%
+                    filter(pol==input$dataset| pol=="size")%>%
                     mutate("value"=Maximum)
     )
   })
@@ -181,11 +182,11 @@ server <- function(input, output, session) {
   datasetPolcity=reactive({
     switch(input$statistic,
            "Mean"=poltotcity%>%
-                  filter(pol==input$dataset)%>%
+                  filter(pol==input$dataset| pol=="size")%>%
                   mutate("value"=Mean),
            
            "Maximum"=poltotcity%>%
-                    filter(pol==input$dataset)%>%
+                    filter(pol==input$dataset| pol=="size")%>%
                     mutate("value"=Maximum)
     )
   })
